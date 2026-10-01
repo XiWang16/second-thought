@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#f4f5f8;}
+*{box-sizing:border-box;}
+a{color:oklch(0.5 0.11 262);text-decoration:none;}
+a:hover{color:oklch(0.4 0.11 262);text-decoration:underline;}
+textarea,input,button{font:inherit;}
+@keyframes stFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes stDraw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stPulse{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes stBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes stStrike{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes stNote{from{opacity:0;transform:rotate(-7deg) translateX(-6px)}to{opacity:1;transform:rotate(-3deg)}}
+@keyframes stBreath{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.6);opacity:0}}
+</style>
+</helmet>
+<div style="height:100vh; display:flex; flex-direction:column; background:transparent; color:#252629; font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:12.5px;">
+
+  <div style="height:56px; flex-shrink:0; display:flex; align-items:center; gap:18px; padding:0 18px 0 22px; border-bottom:1px solid #dddee1; background:#fafbfe;">
+    <div style="display:flex; align-items:baseline; gap:1px; font-family:'Source Serif 4', Georgia, serif; font-size:22px; letter-spacing:-0.01em;">
+      <span>second</span><span style="color:oklch(0.5 0.11 262);">&nbsp;thought</span>
+    </div>
+    <div style="width:1px; height:22px; background:#d9dadd;"></div>
+    
+    <div style="flex:1;"></div>
+    <div title="Switch visual style" style="display:flex; align-items:center; padding:3px; background:#e8e8e8; border-radius:6px; gap:2px;">
+      <span style="padding:5px 11px; border-radius:4px; background:#fff; color:#1d1f23; font-size:12px; box-shadow:0 1px 2px rgba(0,0,0,.12);">Modern</span><a href="retro.html" onClick="{{ saveNow }}" style="padding:5px 11px; border-radius:4px; color:#75777c; font-size:12px; text-decoration:none;" style-hover="color:#1d1f23;">Retro</a>
+    </div>
+    <sc-if value="{{ hasDeferred }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ openReflect }}" style="display:flex; align-items:center; gap:7px; padding:6px 10px; border:1px solid #dedfe2; background:oklch(0.97 0.03 85); border-radius:6px; cursor:pointer; color:oklch(0.45 0.09 70); font-size:12.5px;" style-hover="border-color:oklch(0.8 0.07 80);">
+        <span style="width:7px; height:7px; border-radius:50%; border:1.5px solid oklch(0.58 0.11 70);"></span>
+        <span>{{ deferredLabel }}</span>
+      </button>
+    </sc-if>
+    <div style="display:flex; align-items:center; padding:3px; background:#e7e8eb; border-radius:6px; gap:2px;">
+      <sc-if value="{{ annotations }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ annOn }}" style="padding:5px 11px; border:none; border-radius:5px; background:#fcfdff; color:#252629; font-size:12px; cursor:pointer; box-shadow:0 1px 2px rgba(40,30,10,.12);">Annotated</button>
+        <button onClick="{{ annOff }}" style="padding:5px 11px; border:none; border-radius:5px; background:transparent; color:#747578; font-size:12px; cursor:pointer;">Clean</button>
+      </sc-if>
+      <sc-if value="{{ annotationsOff }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ annOn }}" style="padding:5px 11px; border:none; border-radius:5px; background:transparent; color:#747578; font-size:12px; cursor:pointer;">Annotated</button>
+        <button onClick="{{ annOff }}" style="padding:5px 11px; border:none; border-radius:5px; background:#fcfdff; color:#252629; font-size:12px; cursor:pointer; box-shadow:0 1px 2px rgba(40,30,10,.12);">Clean</button>
+      </sc-if>
+    </div>
+    <button onClick="{{ toggleSidebar }}" title="Toggle assistant panel" style="width:34px; height:34px; display:grid; place-items:center; border:1px solid #d9dadd; border-radius:6px; background:#fcfdff; cursor:pointer; color:#58595c;" style-hover="border-color:#c2c3c6;">
+      <div style="width:16px; height:12px; border:1.5px solid currentColor; border-radius:2px; display:flex; justify-content:flex-end;"><div style="width:5px; border-left:1.5px solid currentColor;"></div></div>
+    </button>
+  </div>
+
+  <div style="flex:1; min-height:0; display:flex;">
+
+    <div style="flex:1; min-width:0; display:flex; flex-direction:column; position:relative;">
+      <div style="flex-shrink:0; display:flex; justify-content:center; padding:10px 16px; border-bottom:1px solid #e6e7ea;">
+        <div style="display:flex; align-items:center; gap:2px; flex-wrap:wrap; justify-content:center;">
+          <button onMouseDown="{{ tbBold }}" title="Bold" style="width:30px; height:30px; border:none; background:transparent; border-radius:5px; cursor:pointer; font-family:'Source Serif 4', Georgia, serif; font-weight:600; font-size:16px; color:#37383b;" style-hover="background:#e6e7ea;">B</button>
+          <button onMouseDown="{{ tbItalic }}" title="Italic" style="width:30px; height:30px; border:none; background:transparent; border-radius:5px; cursor:pointer; font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:17px; color:#37383b;" style-hover="background:#e6e7ea;">I</button>
+          <button onMouseDown="{{ tbUnderline }}" title="Underline" style="width:30px; height:30px; border:none; background:transparent; border-radius:5px; cursor:pointer; font-family:'Source Serif 4', Georgia, serif; text-decoration:underline; font-size:16px; color:#37383b;" style-hover="background:#e6e7ea;">U</button>
+          <div style="width:1px; height:18px; background:#d9dadd; margin:0 6px;"></div>
+          <sc-for list="{{ tools }}" as="t" hint-placeholder-count="9">
+            <button onMouseDown="{{ t.run }}" title="{{ t.title }}" style="height:30px; padding:0 9px; border:none; background:transparent; border-radius:5px; cursor:pointer; font-size:12px; color:#37383b;" style-hover="background:#e6e7ea;">{{ t.label }}</button>
+          </sc-for>
+          <input type="file" accept="image/*" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none;">
+        </div>
+      </div>
+
+      <div ref="{{ scrollRef }}" style="flex:1; min-height:0; overflow:auto;">
+        <div ref="{{ wrapRef }}" style="position:relative; min-height:100%; padding:40px 20px 120px;">
+          <div ref="{{ pageRef }}" style="max-width:720px; margin:0 auto; background:#fff; border:1px solid #d9dadd; border-radius:6px; box-shadow:0 1px 0 rgba(40,30,10,.03), 0 30px 60px -40px rgba(40,30,10,.25); padding:72px clamp(28px, 7vw, 96px) 110px;">
+            <div ref="{{ editorRef }}" style="outline:none; font-family:'Source Serif 4', Georgia, serif; font-size:17.5px; line-height:1.8; color:#252629; min-height:60vh; caret-color:oklch(0.5 0.11 262); transition:color .4s;"></div>
+          </div>
+
+          <sc-for list="{{ margins }}" as="mn">
+            <div onClick="{{ mn.open }}" title="Left for later. Open" style="position:absolute; left:{{ mn.x }}px; top:{{ mn.y }}px; width:112px; font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:11.5px; line-height:1.35; color:oklch(0.42 0.09 70); padding:6px 8px; background:oklch(0.97 0.03 85); border:1px solid oklch(0.86 0.06 80); border-radius:5px; animation:stFadeUp .4s ease both; cursor:pointer; z-index:3;">← {{ mn.text }}</div>
+          </sc-for>
+          <sc-if value="{{ hasBubble }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:{{ bubble.x }}px; top:{{ bubble.y }}px; transform:translateX(-50%); display:flex; gap:2px; padding:4px; background:#212225; border-radius:6px; box-shadow:0 10px 24px -10px rgba(0,0,0,.4); animation:stFadeUp .2s ease both; z-index:5;">
+              <button onMouseDown="{{ bubbleAsk }}" style="padding:6px 10px; border:none; background:transparent; color:#f0f1f4; font-size:12px; border-radius:5px; cursor:pointer; white-space:nowrap;" style-hover="background:#36373a;">Ask about this</button>
+              <button onMouseDown="{{ bubbleReflect }}" style="padding:6px 10px; border:none; background:transparent; color:#f0f1f4; font-size:12px; border-radius:5px; cursor:pointer; white-space:nowrap;" style-hover="background:#36373a;">Reflect</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasPop }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:{{ popv.x }}px; top:{{ popv.y }}px; width:310px; background:#fcfdff; border:1px solid #dcdde0; border-radius:6px; box-shadow:0 18px 40px -18px rgba(40,30,10,.35); padding:14px; display:flex; flex-direction:column; gap:10px; animation:stFadeUp .22s ease both; z-index:6;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="width:7px; height:7px; border-radius:50%; background:{{ popv.color }};"></span>
+                <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#67686b;">{{ popv.label }}</span>
+                <div style="flex:1;"></div>
+                <button onClick="{{ closePop }}" style="border:none; background:transparent; color:#939497; cursor:pointer; font-size:15px; line-height:1;">×</button>
+              </div>
+              <div style="font-size:13px; line-height:1.5; color:#37383b;">{{ popv.reason }}</div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
+                <button onClick="{{ popv.verify }}" style="padding:8px 6px; border:1px solid #dcdde0; border-radius:6px; background:#fff; cursor:pointer; font-size:12px; color:#252629; display:flex; flex-direction:column; align-items:center; gap:3px;" style-hover="border-color:oklch(0.52 0.1 150); background:oklch(0.97 0.02 150);"><span style="font-weight:500;">Verify</span><span style="font-size:10.5px; color:#88898c;">see sources</span></button>
+                <button onClick="{{ popv.correct }}" style="padding:8px 6px; border:1px solid #dcdde0; border-radius:6px; background:#fff; cursor:pointer; font-size:12px; color:#252629; display:flex; flex-direction:column; align-items:center; gap:3px;" style-hover="border-color:oklch(0.5 0.11 262); background:oklch(0.97 0.015 262);"><span style="font-weight:500;">Correct</span><span style="font-size:10.5px; color:#88898c;">edit in place</span></button>
+                <button onClick="{{ popv.defer }}" style="padding:8px 6px; border:1px solid #dcdde0; border-radius:6px; background:#fff; cursor:pointer; font-size:12px; color:#252629; display:flex; flex-direction:column; align-items:center; gap:3px;" style-hover="border-color:oklch(0.58 0.11 70); background:oklch(0.97 0.03 85);"><span style="font-weight:500;">{{ popv.deferLabel }}</span><span style="font-size:10.5px; color:#88898c;">{{ popv.deferSub }}</span></button>
+              </div>
+              <button onClick="{{ popv.more }}" style="border:none; border-top:1px solid #e8e9ec; background:transparent; padding:10px 0 0; text-align:left; cursor:pointer; font-size:12.5px; color:oklch(0.5 0.11 262); display:flex; justify-content:space-between;" style-hover="color:oklch(0.38 0.11 262);"><span>How it came to be</span><span>→</span></button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="flex-shrink:0; height:32px; display:flex; align-items:center; gap:16px; padding:0 20px; border-top:1px solid #e6e7ea; font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:11px; color:#88898c;">
+        <span>{{ wordsLabel }}</span>
+        <span>{{ aiShareLabel }}</span>
+        <div style="flex:1;"></div>
+        
+      </div>
+
+      <sc-if value="{{ showVeil }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:rgba(243,240,232,.72); backdrop-filter:blur(2px); display:grid; place-items:center; z-index:8;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; max-width:360px; padding:20px;">
+            <div style="position:relative; width:14px; height:14px;">
+              <div style="position:absolute; inset:0; border-radius:50%; background:oklch(0.5 0.11 262); animation:stBreath 2.8s ease-in-out infinite;"></div>
+              <div style="position:absolute; inset:3px; border-radius:50%; background:oklch(0.5 0.11 262);"></div>
+            </div>
+            <div style="font-family:'Source Serif 4', Georgia, serif; font-size:26px; line-height:1.2;">First,&nbsp;<span style="font-style: italic;"></span>a bit of context.</div>
+            <div style="color:#67686b; line-height:1.55; text-wrap:pretty;">Describe your writing task in the panel on the right, so your assisatnt knows the context.</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="width:{{ sideW }}; flex-shrink:0; border-left:1px solid #dddee1; background:#f9fafd; transition:width .38s cubic-bezier(.4,0,.2,1); overflow:hidden; position:relative;">
+      <sc-if value="{{ sidebarClosed }}" hint-placeholder-val="{{ false }}">
+        <div style="width:52px; display:flex; flex-direction:column; align-items:center; gap:6px; padding-top:14px;">
+          <sc-for list="{{ tabs }}" as="t">
+            <button onClick="{{ t.go }}" title="{{ t.label }}" style="width:36px; height:36px; border:none; border-radius:6px; background:transparent; cursor:pointer; font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:16px; color:#58595c;" style-hover="background:#e7e8eb;">{{ t.initial }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ sidebar }}" hint-placeholder-val="{{ true }}">
+        <div style="width:420px; height:100%; display:flex; flex-direction:column;">
+          <div style="flex-shrink:0; display:flex; align-items:flex-end; gap:20px; padding:0 22px; height:48px; border-bottom:1px solid #e3e4e7;">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+              <sc-if value="{{ t.active }}">
+                <button onClick="{{ t.go }}" style="padding:0 0 12px; border:none; border-bottom:1.5px solid #252629; background:transparent; cursor:pointer; font-size:13px; color:#252629; font-weight:500;">{{ t.label }}</button>
+              </sc-if>
+              <sc-if value="{{ t.inactive }}">
+                <button onClick="{{ t.go }}" style="padding:0 0 12px; border:none; border-bottom:1.5px solid transparent; background:transparent; cursor:pointer; font-size:13px; color:#838487;" style-hover="color:#252629;">{{ t.label }}</button>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isContext }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1; min-height:0; overflow:auto; padding:24px 22px 30px; display:flex; flex-direction:column; gap:24px;">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                
+                <div style="font-family:'Source Serif 4', Georgia, serif; font-size:25px; line-height:1.2;">writing context</div>
+                
+              </div>
+              <sc-for list="{{ dims }}" as="d" hint-placeholder-count="5">
+                <div style="display:flex; flex-direction:column; gap:9px; padding-top:18px; border-top:1px solid #e5e6e9;">
+                  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+                    <div style="font-family:'Source Serif 4', Georgia, serif; font-size:17px;">{{ d.name }}</div>
+                    
+                  </div>
+                  <div style="font-size:12px; color:#838487; line-height:1.45;">{{ d.q }}<sc-if value="{{ d.multi }}"><span style="font-style:italic; color:#9c9da0;"> Select all that apply.</span></sc-if></div>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <sc-for list="{{ d.opts }}" as="o">
+                      <sc-if value="{{ o.sel }}">
+                        <button onClick="{{ o.pick }}" title="{{ o.title }}" style="padding:6px 11px; border:1px solid #252629; border-radius:999px; background:#252629; color:#f5f6f9; font-size:12.5px; cursor:pointer;">{{ o.label }}</button>
+                      </sc-if>
+                      <sc-if value="{{ o.unsel }}">
+                        <button onClick="{{ o.pick }}" title="{{ o.title }}" style="padding:6px 11px; border:1px solid #d6d7da; border-radius:999px; background:#fcfdff; color:#454649; font-size:12.5px; cursor:pointer; transition:border-color .2s;" style-hover="border-color:#939497;">{{ o.label }}</button>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                  
+                  <sc-if value="{{ d.showOther }}">
+                    <input value="{{ purposeOther }}" onChange="{{ setPurposeOther }}" placeholder="Describe your purpose" style="padding:9px 11px; border:1px solid #d6d7da; border-radius:6px; background:#fcfdff; font-size:13px; color:#252629; outline:none;" style-focus="border-color:oklch(0.5 0.11 262);">
+                  </sc-if>
+                  <sc-if value="{{ d.showAud }}">
+                    <input value="{{ audienceText }}" onChange="{{ setAudience }}" placeholder="Who will read this?" style="padding:9px 11px; border:1px solid #d6d7da; border-radius:6px; background:#fcfdff; font-size:13px; color:#252629; outline:none;" style-focus="border-color:oklch(0.5 0.11 262);">
+                  </sc-if>
+                </div>
+              </sc-for>
+              <div style="padding:16px; border:1px solid #dcdde0; border-radius:6px; background:#fcfdff; display:flex; flex-direction:column; gap:8px;">
+                <div style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:oklch(0.5 0.11 262);">What this means for assistance</div>
+                <div style="font-family:'Source Serif 4', Georgia, serif; font-size:15.5px; line-height:1.55; color:#2b2c2f; text-wrap:pretty;">{{ ctxImplication }}</div>
+              </div>
+              <sc-if value="{{ notStarted }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ begin }}" style="padding:13px 16px; border:none; border-radius:6px; background:#252629; color:#f5f6f9; font-size:13.5px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" style-hover="background:#323336;"><span>Begin writing</span><span>→</span></button>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAssist }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+              
+              <div ref="{{ threadRef }}" style="flex:1; min-height:0; overflow:auto; padding:20px 22px; display:flex; flex-direction:column; gap:18px;">
+                <sc-for list="{{ thread }}" as="m" hint-placeholder-count="1">
+                  <sc-if value="{{ m.isUser }}">
+                    <div style="align-self:flex-end; max-width:86%; display:flex; flex-direction:column; align-items:flex-end; gap:6px; animation:stFadeUp .35s ease both;">
+                      <sc-if value="{{ m.hasLabel }}"><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#9c9da0;">{{ m.label }}</span></sc-if>
+                      <sc-if value="{{ m.hasAttached }}">
+                        <div style="font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:13.5px; color:#67686b; line-height:1.45; padding:6px 0 6px 12px; border-left:1px solid #c7c8cb; text-align:left;">{{ m.attachedShort }}</div>
+                      </sc-if>
+                      <div style="padding:9px 13px; background:#e6e7ea; border-radius:12px 12px 3px 12px; line-height:1.5; color:#252629;">{{ m.text }}</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ m.isNote }}">
+                    <div style="display:flex; align-items:center; gap:10px; color:#8e8f92; font-size:11.5px; font-style:italic; font-family:'Source Serif 4', Georgia, serif; animation:stFadeUp .35s ease both;">
+                      <div style="flex:1; height:1px; background:#e0e1e4;"></div><span style="max-width:80%; text-align:center;">{{ m.text }}</span><div style="flex:1; height:1px; background:#e0e1e4;"></div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ m.isAi }}">
+                    <div style="display:flex; flex-direction:column; gap:10px; animation:stFadeUp .5s ease both;">
+                      
+                      <sc-if value="{{ m.hasLead }}"><div style="font-family:'Source Serif 4', Georgia, serif; font-size:16px; line-height:1.55; color:#252629; text-wrap:pretty;">{{ m.lead }}</div></sc-if>
+                      <sc-for list="{{ m.parts }}" as="p">
+                        <div style="padding:11px 13px; border:1px solid #e0e1e4; border-radius:6px; background:#fcfdff; display:flex; flex-direction:column; gap:8px;">
+                          <sc-if value="{{ p.isWriter }}"><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:oklch(0.45 0.1 150);">Your words</span></sc-if>
+                          <sc-if value="{{ p.plain }}"><div style="font-family:'Source Serif 4', Georgia, serif; font-size:15.5px; line-height:1.55; color:#27282b; text-wrap:pretty;">{{ p.text }}</div></sc-if>
+                          <sc-if value="{{ p.flag }}">
+                            <div style="font-family:'Source Serif 4', Georgia, serif; font-size:15.5px; line-height:1.55; color:#27282b; text-wrap:pretty;"><span style="background:oklch(0.95 0.045 85); border-bottom:1.5px dotted oklch(0.58 0.11 70);">{{ p.text }}</span></div>
+                            <div style="display:flex; gap:7px; font-size:11.5px; line-height:1.4; color:oklch(0.45 0.09 70);"><span style="flex-shrink:0; margin-top:4px; width:6px; height:6px; border-radius:50%; background:oklch(0.58 0.11 70);"></span><span>{{ p.flagNote }}</span></div>
+                          </sc-if>
+                          <sc-if value="{{ p.canInsert }}">
+                            <button onClick="{{ p.insert }}" style="align-self:flex-start; padding:4px 0; border:none; background:transparent; color:oklch(0.5 0.11 262); font-size:12px; cursor:pointer;" style-hover="color:oklch(0.36 0.11 262);">Insert ↵</button>
+                          </sc-if>
+                          <sc-if value="{{ p.isInserted }}"><span style="font-size:12px; color:#939497;">Inserted and marked</span></sc-if>
+                        </div>
+                      </sc-for>
+                      <sc-if value="{{ m.typingNow }}"><span style="display:block; width:8px; height:15px; background:#252629; animation:stBlink .9s steps(1) infinite;"></span></sc-if><sc-if value="{{ m.hasCloser }}"><div style="font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:15px; line-height:1.5; color:#454649;">{{ m.closer }}</div></sc-if>
+                    </div>
+                  </sc-if>
+                </sc-for>
+
+                <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px solid #d9dadd; background:#fcfdff; border-radius:6px; padding:18px; display:flex; flex-direction:column; gap:15px; animation:stFadeUp .5s ease both; box-shadow:0 14px 34px -22px rgba(40,30,10,.35);">
+                    <div>
+                      <div style="display:flex; align-items:baseline; justify-content:space-between;">
+                        <div style="font-family:'Source Serif 4', Georgia, serif; font-size:24px; color:#252629;">A second thought</div>
+                        
+                      </div>
+                      <div style="height:1px; background:#252629; margin-top:8px; transform-origin:left; animation:stDraw 1.2s cubic-bezier(.6,0,.2,1) both;"></div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:5px; animation:stFadeUp .5s .25s ease both;">
+                      <span style="font-size:11px; color:#838487;">You asked</span>
+                      <div style="position:relative; font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:13.5px; line-height:1.6; word-break:break-all; color:#76777a;">
+                        <span style="font-style:italic;">{{ st.original }}</span>
+                      </div>
+                    </div>
+                    <sc-if value="{{ st.isStep1 }}">
+                    <div style="display:grid; grid-template-columns:1fr; gap:6px; animation:stFadeUp .5s .3s ease both;">
+                      <span style="font-size:11.5px; color:#838487;">What are you trying to accomplish?</span>
+                      <input value="{{ st.goal }}" onChange="{{ setGoal }}" placeholder="I want…" style="padding:9px 11px; border:1px solid #dcdde0; border-radius:6px; background:#fcfdff; font-size:12.5px; outline:none;" style-focus="border-color:oklch(0.5 0.11 262);">
+                      <span style="font-size:11.5px; color:#838487; margin-top:6px;">Why ask the assistant, rather than work it through yourself?</span>
+                      <input value="{{ st.why }}" onChange="{{ setWhy }}" placeholder="Because…" style="padding:9px 11px; border:1px solid #dcdde0; border-radius:6px; background:#fcfdff; font-size:12.5px; outline:none;" style-focus="border-color:oklch(0.5 0.11 262);">
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <button onClick="{{ proceed }}" style="flex:1; padding:10px 14px; border:none; border-radius:6px; background:#252629; color:#f5f6f9; font-size:13px; cursor:pointer;" style-hover="background:#323336;">Continue</button>
+                      <button onClick="{{ withdraw }}" title="Keep this one yourself" style="padding:10px 12px; border:1px solid #d6d7da; border-radius:6px; background:transparent; color:#58595c; font-size:12.5px; cursor:pointer;" style-hover="border-color:#939497;">Do it myself</button>
+                    </div>
+                    </sc-if>
+                    <sc-if value="{{ st.isStep2 }}">
+                    <div style="display:flex; flex-direction:column; gap:3px; font-size:12px; color:#58595c; line-height:1.45; padding:10px 12px; background:#f6f7f8; border-radius:6px;">
+                      <sc-if value="{{ st.hasGoal }}"><span><span style="color:#838487;">Goal · </span>{{ st.goal }}</span></sc-if>
+                      <sc-if value="{{ st.hasWhy }}"><span><span style="color:#838487;">Why · </span>{{ st.why }}</span></sc-if>
+                      <button onClick="{{ back }}" style="align-self:flex-start; border:none; background:transparent; padding:2px 0 0; color:oklch(0.5 0.11 262); font-size:11.5px; cursor:pointer;">Back</button>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:6px; animation:stFadeUp .4s ease both;">
+                      <span style="font-size:11.5px; color:#838487;">A better way to phrase it..</span>
+                      <textarea value="{{ st.restated }}" onChange="{{ setRestated }}" rows="4" style="resize:vertical; padding:10px 12px; border:1px solid #d6d7da; border-radius:6px; background:#fff; font-family:'Source Serif 4', Georgia, serif; font-size:15px; line-height:1.5; color:#252629; outline:none;" style-focus="border-color:oklch(0.5 0.11 262);"></textarea>
+                    </div>
+                    <div style="padding:12px 13px; border-radius:6px; background:{{ st.riskWash }}; border:1px solid {{ st.riskLine }}; transition:background .3s, border-color .3s; display:flex; flex-direction:column; gap:8px; animation:stFadeUp .4s .1s ease both;">
+                      <div style="font-family:'Source Serif 4', Georgia, serif; font-size:16px; color:#252629;">Is this a good use of AI?</div>
+                      <div style="display:flex; align-items:center; gap:8px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ st.riskColor }};"></span><span style="font-weight:600; font-size:14px; color:#27282b;">{{ st.verdict }}</span></div>
+                      <div style="font-size:12.5px; line-height:1.5; color:#454649; text-wrap:pretty;"><span style="font-weight:500; color:#27282b;">{{ st.riskTitle }}.</span> {{ st.riskBody }}</div>
+                      <sc-if value="{{ st.hasRiskNote }}"><div style="font-size:12.5px; line-height:1.5; color:#27282b; text-wrap:pretty;">{{ st.riskNote }}</div></sc-if>
+                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:8px; border-top:1px solid rgba(60,50,30,.1);">
+                        <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:#838487;">What AI does well</span><span style="font-size:12px; color:#37383b; line-height:1.4;">{{ st.good }}</span></div>
+                        <div style="display:flex; flex-direction:column; gap:2px;"><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:#838487;">WHERE AI CAN FAIL</span><span style="font-size:12px; color:#37383b; line-height:1.4;">{{ st.weak }}</span></div>
+                      </div>
+                    </div>
+                    <sc-if value="{{ st.hasAlts }}">
+                      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 2px; animation:stFadeUp .4s .1s ease both;">
+                        <span style="font-size:11.5px; color:#838487;">Or keep more of the thinking with you</span>
+                        <sc-for list="{{ st.alts }}" as="a">
+                          <sc-if value="{{ a.sel }}">
+                            <button onClick="{{ a.pick }}" style="text-align:left; padding:12px 14px 12px; border:1px solid #252629; border-radius:6px; background-color:#fff; cursor:pointer; display:flex; flex-direction:column; gap:4px; transform:rotate(0deg); box-shadow:0 8px 18px -8px rgba(60,40,10,.35); transition:transform .25s, box-shadow .25s;"><span style="font-size:13px; color:#252629; line-height:1.4;">{{ a.text }}</span><span style="font-size:11.5px; color:oklch(0.45 0.11 262);">{{ a.why }}</span></button>
+                          </sc-if>
+                          <sc-if value="{{ a.unsel }}">
+                            <button onClick="{{ a.pick }}" style="text-align:left; padding:12px 14px 12px; border:1px solid #d6d7da; border-radius:6px; background-color:#fff; cursor:pointer; display:flex; flex-direction:column; gap:4px; transform:rotate({{ a.tilt }}deg); box-shadow:0 3px 8px -4px rgba(60,40,10,.25); transition:transform .25s, box-shadow .25s;" style-hover="transform:rotate(0deg) translateY(-2px); box-shadow:0 8px 18px -8px rgba(60,40,10,.35);"><span style="font-size:13px; color:#252629; line-height:1.4;">{{ a.text }}</span><span style="font-size:11.5px; color:#838487;">{{ a.why }}</span></button>
+                          </sc-if>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <div style="display:flex; gap:8px; align-items:center; animation:stFadeUp .5s .75s ease both;">
+                      <button onClick="{{ confirm }}" style="padding:10px 12px; border:1px solid #d6d7da; border-radius:6px; background:#fff; color:#58595c; font-size:12.5px; cursor:pointer;" style-hover="border-color:#939497;">{{ st.sendLabel }}</button>
+                      <button onClick="{{ withdraw }}" title="Keep this one yourself" style="flex:1; padding:10px 14px; border:none; border-radius:6px; background:#252629; color:#f5f6f9; font-size:13px; cursor:pointer;" style-hover="background:#323336;">Do it myself instead</button>
+                    </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ thinking }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; align-items:center; gap:10px; color:#838487; font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:14.5px;">
+                    <span>considering</span>
+                    <span style="display:flex; gap:4px;"><span style="width:4px; height:4px; border-radius:50%; background:oklch(0.5 0.11 262); animation:stPulse 1.2s infinite;"></span><span style="width:4px; height:4px; border-radius:50%; background:oklch(0.5 0.11 262); animation:stPulse 1.2s .2s infinite;"></span><span style="width:4px; height:4px; border-radius:50%; background:oklch(0.5 0.11 262); animation:stPulse 1.2s .4s infinite;"></span></span>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="flex-shrink:0; border-top:1px solid #e3e4e7; padding:12px 16px 14px; display:flex; flex-direction:column; gap:10px; background:#fafbfe;">
+                <sc-if value="{{ showActions }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
+                      <button onClick="{{ a.go }}" title="{{ a.hint }}" style="display:flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #d9dadd; border-radius:999px; background:#fcfdff; cursor:pointer; font-size:12px; color:#37383b;" style-hover="border-color:#939497;">
+                        <span>{{ a.label }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ hasAttached }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #d9dadd; border-radius:6px; background:#fcfdff;">
+                    <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.08em; color:#88898c; margin-top:3px;">CONTEXT</span>
+                    <span style="flex:1; font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:13.5px; color:#454649; line-height:1.4;">{{ attachedShort }}</span>
+                    <button onClick="{{ detach }}" style="border:none; background:transparent; color:#939497; cursor:pointer; font-size:14px; line-height:1;">×</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ canAttachSel }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ attachSel }}" style="align-self:flex-start; padding:5px 10px; border:1px dashed #c7c8cb; border-radius:6px; background:transparent; color:#67686b; font-size:12px; cursor:pointer;" style-hover="border-color:#88898c;">+ Add selection as context</button>
+                </sc-if>
+                <div style="display:flex; align-items:flex-end; gap:8px; padding:8px 8px 8px 12px; border:1px solid #d6d7da; border-radius:6px; background:#fff;">
+                  <textarea value="{{ input }}" onChange="{{ setInput }}" onKeyDown="{{ onInputKey }}" rows="2" placeholder="{{ inputPlaceholder }}" style="flex:1; resize:none; border:none; outline:none; background:transparent; font-size:13.5px; line-height:1.45; color:#252629; max-height:120px;"></textarea>
+                  <button onClick="{{ sendFree }}" style="width:32px; height:32px; flex-shrink:0; border:none; border-radius:6px; background:#252629; color:#f5f6f9; cursor:pointer; font-size:15px;" style-hover="background:#323336;">↑</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isReflect }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1; min-height:0; overflow:auto; padding:24px 22px 34px; display:flex; flex-direction:column; gap:26px;">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                
+                <div style="font-family:'Source Serif 4', Georgia, serif; font-size:25px; line-height:1.2;">How this draft&nbsp;came to be</div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">i.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">How this draft evolved</span></div>
+                <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">{{ docHow }}</div>
+                <div style="display:flex; flex-direction:column; gap:5px; padding:14px; border:1px solid #e0e1e4; border-radius:6px; background:#fcfdff;">
+                  <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10px; letter-spacing:.06em; color:#88898c; margin-bottom:4px;"><span>PROVENANCE MAP</span><span>click a row to locate it</span></div>
+                  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+                    <button onClick="{{ r.go }}" style="display:grid; grid-template-columns:28px 1fr; align-items:center; gap:8px; border:none; background:transparent; padding:3px 0; cursor:pointer;" style-hover="opacity:.75;">
+                      <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; color:#88898c; text-align:left;">{{ r.label }}</span>
+                      <div style="display:flex; height:9px; border-radius:2px; overflow:hidden; background:#eaebee;">
+                        <sc-for list="{{ r.segs }}" as="s"><div style="width:{{ s.w }}%; background:{{ s.c }};"></div></sc-for>
+                      </div>
+                    </button>
+                  </sc-for>
+                  <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:10.5px; color:#67686b;">
+                    <sc-for list="{{ legend }}" as="l"><span style="display:flex; align-items:center; gap:5px;"><span style="width:9px; height:9px; border-radius:2px; background:{{ l.c }};"></span>{{ l.label }}</span></sc-for>
+                  </div>
+                </div>
+                <button onClick="{{ toggleSpot }}" style="align-self:flex-start; display:flex; align-items:center; gap:9px; border:none; background:transparent; cursor:pointer; padding:0; font-size:12.5px; color:#37383b;">
+                  <span style="width:30px; height:17px; border-radius:999px; background:{{ spotTrack }}; position:relative; transition:background .25s;"><span style="position:absolute; top:2px; left:{{ spotKnob }}px; width:13px; height:13px; border-radius:50%; background:#fff; transition:left .25s; box-shadow:0 1px 2px rgba(0,0,0,.2);"></span></span>
+                  Highlight AI involvement in the document
+                </button>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">ii.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">What it means now</span></div>
+                <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">{{ docMeant }}</div>
+                <div style="display:flex; flex-direction:column; gap:9px;">
+                  <sc-for list="{{ alloc }}" as="a" hint-placeholder-count="5">
+                    <div style="display:grid; grid-template-columns:130px 1fr 92px; align-items:center; gap:10px;">
+                      <span style="font-size:12px; color:#454649;">{{ a.label }}</span>
+                      <div style="display:flex; height:6px; border-radius:999px; overflow:hidden; background:#eaebee;"><div style="width:{{ a.w }}%; background:#37383b;"></div><div style="width:{{ a.ai }}%; background:oklch(0.5 0.11 262);"></div></div>
+                      <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; color:#88898c; text-align:right;">{{ a.tag }}</span>
+                    </div>
+                  </sc-for>
+                  <div style="display:flex; gap:14px; font-size:10.5px; color:#67686b;"><span style="display:flex; align-items:center; gap:5px;"><span style="width:9px; height:6px; border-radius:2px; background:#37383b;"></span>you</span><span style="display:flex; align-items:center; gap:5px;"><span style="width:9px; height:6px; border-radius:2px; background:oklch(0.5 0.11 262);"></span>assistant</span></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:7px; margin-top:4px;">
+                  <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10px; letter-spacing:.06em; color:#88898c;">HOW IDEAS TRAVELLED</span>
+                  <sc-for list="{{ ideaThreads }}" as="t">
+                    <button onClick="{{ t.open }}" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; border:none; background:transparent; padding:4px 0; cursor:pointer; text-align:left;" style-hover="opacity:.75;">
+                      <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; color:#88898c; width:24px;">{{ t.para }}</span>
+                      <sc-for list="{{ t.nodes }}" as="n">
+                        <sc-if value="{{ n.notFirst }}"><span style="color:#aeafb2; font-size:11px;">→</span></sc-if>
+                        <span style="display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid #e0e1e4; border-radius:999px; background:#fcfdff; font-size:11.5px; color:#37383b;"><span style="width:6px; height:6px; border-radius:50%; background:{{ n.c }};"></span>{{ n.label }}</span>
+                      </sc-for>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">iii.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">Worth a second look</span></div>
+                <sc-for list="{{ notices }}" as="n" hint-placeholder-count="1">
+                  <div style="padding:16px; border:1px solid #dcdde0; border-radius:6px; background:#fcfdff; display:flex; flex-direction:column; gap:12px;">
+                    <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">
+                  <sc-if value="{{ n.textOne }}">{{ n.textFirst }}</sc-if>
+                  <sc-if value="{{ n.textMany }}"><ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px;"><sc-for list="{{ n.textPts }}" as="pt"><li>{{ pt }}</li></sc-for></ul></sc-if>
+                </div>
+                    <div style="display:flex; gap:14px;">
+                      <sc-if value="{{ n.hasPassage }}"><button onClick="{{ n.go }}" style="border:none; background:transparent; padding:0; cursor:pointer; font-size:12.5px; color:oklch(0.5 0.11 262);">Show passage</button></sc-if>
+                      <button onClick="{{ toggleNote }}" style="border:none; background:transparent; padding:0; cursor:pointer; font-size:12.5px; color:#67686b;">Note to self</button>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <textarea value="{{ noteDraft }}" onChange="{{ setNote }}" rows="3" placeholder="Explain it in your own words, or note what to come back to…" style="resize:vertical; padding:10px 12px; border:1px solid #d6d7da; border-radius:6px; background:#fff; font-family:'Source Serif 4', Georgia, serif; font-size:15px; line-height:1.5; outline:none;"></textarea>
+                    <button onClick="{{ saveNote }}" style="align-self:flex-end; padding:7px 12px; border:none; border-radius:6px; background:#252629; color:#f5f6f9; font-size:12px; cursor:pointer;">Save note</button>
+                  </div>
+                </sc-if>
+                <sc-for list="{{ notes }}" as="n">
+                  <div style="font-family:'Source Serif 4', Georgia, serif; font-size:14.5px; line-height:1.5; color:#454649; padding-left:12px; border-left:1px solid #c7c8cb;">{{ n.text }} <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10px; color:#9c9da0;">{{ n.t }}</span></div>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ hasDeferred }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; gap:10px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                  <div style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.45 0.09 70);">Left for later</div>
+                  <sc-for list="{{ deferred }}" as="d">
+                    <button onClick="{{ d.open }}" style="text-align:left; display:flex; flex-direction:column; gap:4px; padding:11px 13px; border:1px solid #dedfe2; border-radius:6px; background:oklch(0.98 0.02 85); cursor:pointer;" style-hover="border-color:oklch(0.8 0.07 80);">
+                      <span style="font-family:'Source Serif 4', Georgia, serif; font-style:italic; font-size:14.5px; color:#27282b; line-height:1.45;">“{{ d.excerpt }}”</span>
+                      <span style="font-size:11.5px; color:#838487;">{{ d.reason }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isPassage }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1; min-height:0; overflow:auto; padding:24px 22px 34px; display:flex; flex-direction:column; gap:24px;">
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ insp.color }};"></span><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#67686b;">{{ insp.statusLabel }}</span></div>
+                  <button onClick="{{ closeInspect }}" style="border:none; background:transparent; color:#838487; cursor:pointer; font-size:12px;" style-hover="color:#252629;">Close</button>
+                </div>
+                <div style="font-family:'Source Serif 4', Georgia, serif; font-size:17px; line-height:1.55; color:#252629; padding-left:14px; border-left:1px solid #252629; text-wrap:pretty;">{{ insp.text }}</div>
+                <sc-if value="{{ insp.isAi }}">
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button onClick="{{ insp.correct }}" style="padding:7px 11px; border:1px solid #d6d7da; border-radius:6px; background:#fcfdff; font-size:12px; cursor:pointer;" style-hover="border-color:oklch(0.5 0.11 262);">Correct</button>
+                    <button onClick="{{ insp.defer }}" style="padding:7px 11px; border:1px solid #d6d7da; border-radius:6px; background:#fcfdff; font-size:12px; cursor:pointer;" style-hover="border-color:oklch(0.58 0.11 70);">{{ insp.deferLabel }}</button>
+                    <sc-if value="{{ insp.canVerify }}"><button onClick="{{ insp.verify }}" style="padding:7px 11px; border:1px solid #d6d7da; border-radius:6px; background:#fcfdff; font-size:12px; cursor:pointer;" style-hover="border-color:oklch(0.52 0.1 150);">Mark verified</button></sc-if>
+                    <button onClick="{{ insp.locate }}" style="padding:7px 11px; border:none; background:transparent; font-size:12px; cursor:pointer; color:oklch(0.5 0.11 262);">Locate</button>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">i.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">How this text evolved</span></div>
+                <div style="display:flex; flex-direction:column;">
+                  <sc-for list="{{ insp.steps }}" as="s">
+                    <div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; position:relative; padding-bottom:12px;">
+                      <div style="display:flex; flex-direction:column; align-items:center;"><span style="width:8px; height:8px; margin-top:5px; border-radius:50%; background:{{ s.c }};"></span><span style="flex:1; width:1px; background:#dcdde0; margin-top:4px;"></span></div>
+                      <div style="display:flex; flex-direction:column; gap:1px;"><span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:#9c9da0;">{{ s.who }}</span><span style="font-size:12.5px; line-height:1.45; color:#2b2c2f;">{{ s.text }}</span></div>
+                      <span style="font-family:'IBM Plex Sans', system-ui, sans-serif; font-size:10.5px; color:#9c9da0;">{{ s.t }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <sc-if value="{{ showSources }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:10px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                  <div style="display:flex; align-items:baseline; justify-content:space-between;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">Sources</span></div>
+                  <sc-for list="{{ insp.sources }}" as="so">
+                    <div style="padding:11px 13px; border:1px solid #e0e1e4; border-radius:6px; background:#fcfdff; display:flex; flex-direction:column; gap:6px;">
+                      <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                        <a href="{{ so.url }}" target="_blank" style="font-size:13px; line-height:1.4; font-weight:500;">{{ so.title }} ↗</a>
+                        <span style="flex-shrink:0; padding:2px 7px; border-radius:999px; font-size:10.5px; color:#fff; background:{{ so.vc }};">{{ so.verdict }}</span>
+                      </div>
+                      <span style="font-size:12px; line-height:1.45; color:#58595c;">{{ so.note }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ insp.noSources }}"><div style="font-size:12.5px; color:#838487; font-style:italic;">No sources attached to this passage.</div></sc-if>
+                </div>
+              </sc-if>
+
+              <div style="display:flex; flex-direction:column; gap:10px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">ii.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">What it means now</span></div>
+                <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">{{ insp.meant }}</div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#838487;">For your writing</span>
+                  <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">{{ insp.forText }}</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <span style="font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#838487;">For you as a writer</span>
+                  <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">{{ insp.forWriter }}</div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px; padding-top:20px; border-top:1px solid #e5e6e9;">
+                <div style="display:flex; align-items:baseline; gap:10px;"><span style="font-family:'Source Serif 4', Georgia, serif; font-size:15px; color:oklch(0.5 0.11 262);">iii.</span><span style="font-family:'Source Serif 4', Georgia, serif; font-size:18px;">Worth a second look</span></div>
+                <div style="font-size:13px; line-height:1.6; color:#37383b; text-wrap:pretty;">
+                  <sc-if value="{{ insp.noticeOne }}">{{ insp.noticeFirst }}</sc-if>
+                  <sc-if value="{{ insp.noticeMany }}"><ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px;"><sc-for list="{{ insp.noticePts }}" as="pt"><li>{{ pt }}</li></sc-for></ul></sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;secondThought&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;always&quot;,&quot;generative&quot;,&quot;off&quot;],&quot;default&quot;:&quot;always&quot;,&quot;tsType&quot;:&quot;'always'|'generative'|'off'&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;annotationStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;wash&quot;,&quot;underline&quot;],&quot;default&quot;:&quot;wash&quot;,&quot;tsType&quot;:&quot;'wash'|'underline'&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;showSetup&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+class Component extends DCLogic {
+  C = { ink:'#252629', writer:'#37383b', indigo:'oklch(0.5 0.11 262)', indigoWash:'oklch(0.955 0.022 262)', indigoLine:'oklch(0.72 0.08 262)', indigoSoft:'oklch(0.78 0.06 262)', ochre:'oklch(0.58 0.11 70)', ochreWash:'oklch(0.95 0.045 85)', green:'oklch(0.52 0.1 150)', greenWash:'oklch(0.955 0.03 150)', red:'oklch(0.55 0.13 25)', grey:'#9e9fa2' };
+  DIMS = [
+    { key:'stage', name:'Stage', q:'What stage are you at in your writing?', opts:[['Idea generation','Brainstorming and developing concepts or content themes'],['Planning','Organizing the structure and content outline'],['Drafting','Composing the written content'],['Revision','Reviewing and refining the written material']] },
+    { key:'context', name:'Type', q:'Which stylistic norms, audience expectations and domain conventions apply?', opts:[['Academic','Research, analysis, and formal presentation of knowledge within educational contexts'],['Creative','Imagination, narrative, artistic elements, and original storytelling'],['Journalistic','Factual reporting, news coverage, and conveying information to the public'],['Technical','Complex information, instructions, or explanations in specialized fields'],['Professional','Precise and formal writing like reports and documents'],['Personal','Individual thoughts, experiences, and emotions; private or communicative']] },
+    { key:'purpose', name:'Purpose', q:'What is the purpose of the written artifact?', opts:[['Expository','Conveying factual and informative content to the audience'],['Narrative','Conveying a story'],['Descriptive','Providing expressive details'],['Persuasive','Convincing or influencing opinions or actions'],['Educational','Teaching and helping people learn'],['Entertainment','Engaging and amusing for leisure or enjoyment'],['Analytical','In-depth examination, analysis, or evaluation'],['Feedback','Providing evaluative comments or responses to content'],['Other','Your own purpose']] },
+    { key:'specificity', name:'Specificity', q:'How detailed are the task requirements?', opts:[['Nonspecific','No explicit guidelines, instructions, or objectives'],['General direction','A broad indication of the desired outcome without precise steps'],['Specific objectives','Some specific objectives contributing to the task'],['Detailed requirements','Detailed and measurable instructions']] },
+    { key:'audience', name:'Audience', q:'Do you have an intended audience for your writing?', opts:[['Yes','Audience is clearly identified or explicitly stated'],['No','Audience is assumed or inferred without explicit mention']] },
+  ];
+  ACTIONS = [
+    { key:'explore', label:'Explore an idea', hint:'Think aloud about a direction' },
+    { key:'challenge', label:'Challenge my argument', hint:'Scrutiny, not a rewrite' },
+    { key:'counter', label:'Find counterarguments', hint:'Objections a reader may raise' },
+    { key:'evidence', label:'Check evidence', hint:'Which claims need support' },
+    { key:'clarity', label:'Improve clarity', hint:'Where the prose is unclear' },
+    { key:'draft', label:'Draft this for me', hint:'Generate new text' },
+  ];
+  ASK = { explore:'Help me explore this idea.', challenge:'Challenge my argument.', counter:'What are the counterarguments to my position?', evidence:'Check the evidence here.', clarity:'Make this clearer.', draft:'Write my reply to the uninformed-voters objection.' };
+  LABEL = { explore:'Explore an idea', challenge:'Challenge my argument', counter:'Find counterarguments', evidence:'Check evidence', clarity:'Improve clarity', draft:'Draft for me', outline:'Outline questions', selfedit:'Highlight unclear sentences', socratic:'Socratic dialogue', anticipate:'Anticipated objections' };
+  CAT = { explore:'ideation', challenge:'argument', counter:'argument', evidence:'evidence', clarity:'wording', draft:'argument', outline:'structure', selfedit:'wording', socratic:'ideation', anticipate:'argument' };
+  REC = { 'Idea generation':['explore','challenge'], 'Planning':['explore','counter','challenge'], 'Drafting':['challenge','counter','evidence'], 'Revision':['clarity','evidence','challenge'] };
+  SOCRATIC = [
+    'Let’s think it through together. In a sentence or two: why would compulsory voting make a national election more legitimate?',
+    'Suppose a citizen says, “I don’t vote because no party represents me.” Does compelling them to attend change that? If not, does your argument hold?',
+    'Last one. What would convince you that you were wrong about this?'
+  ];
+
+  editorRef = React.createRef(); scrollRef = React.createRef(); threadRef = React.createRef(); fileRef = React.createRef(); wrapRef = React.createRef(); pageRef = React.createRef();
+  savedRange = null; pidN = 3; msgN = 1; rowEls = [];
+
+  state = {
+    started: false,
+    ctx: { stage:['Drafting'], context:['Academic'], purpose:['Persuasive'], specificity:['Specific objectives'], audience:'Yes', purposeOther:'', audienceText:'Seminar tutor and peers, Politics & Ethics, Year 2' },
+    sidebar: true, tab: 'context', annotations: true, spotlight: false,
+    selText: '', attached: '', input: '',
+    thread: [{ id:'m0', role:'ai', lead:'I’m here when you want a second mind. Select a passage for context, or pick an action. I may ask a question before answering.', parts:[] }],
+    pending: null, thinking: false, mode: null,
+    pop: null, bubble: null, inspect: null, inspectText: '',
+    passages: {
+      p1: { status:'flagged', reason:'Contains statistics the assistant supplied without a citation.', label:'Age-gap figures', category:'evidence',
+        steps:[{who:'writer',t:'09:12',text:'You wrote “Turnout is not randomly distributed.”'},{who:'writer',t:'09:14',text:'Asked (Check evidence): “find turnout figures by age for the 2019 UK election”'},{who:'system',t:'09:14',text:'Second thought: sent as written. Low reliance risk.'},{who:'ai',t:'09:15',text:'Assistant supplied two figures, without a citation'},{who:'writer',t:'09:15',text:'You inserted the sentence unchanged'}],
+        sources:[{title:'Ipsos MORI: How Britain voted in the 2019 election',url:'https://www.google.com/search?q=Ipsos+MORI+how+Britain+voted+2019+election',note:'Survey estimate by age group; the source the figures most likely derive from.',verdict:'supports'},{title:'British Election Study: validated turnout, 2019',url:'https://www.google.com/search?q=British+Election+Study+2019+validated+turnout+age',note:'Validated-vote methods report a gap of a different size; the figure depends on how turnout is measured.',verdict:'partly'}],
+        meant:'The assistant supplied the figures behind your turnout claim. Your argument now rests on numbers you have not checked.',
+        forText:'The paragraph’s main evidence is unverified. If the figures are off, the claim that policy follows the voters loses its support.',
+        forWriter:'Finding and citing evidence is a core academic skill. Tracing these figures to their source keeps that skill, and the claim, yours.',
+        notice:'If a reader asked where these figures come from, could you say? The second source suggests the size of the gap depends on how turnout is measured.',
+        thread:[['writer','Unequal-turnout claim'],['ai','Age-gap figures'],['source','Ipsos MORI 2019']] },
+      p2: { status:'verified', reason:'Revised by you and checked against the electoral record.', label:'Australia example', category:'wording',
+        steps:[{who:'writer',t:'09:31',text:'You drafted the Australia example'},{who:'writer',t:'09:33',text:'Asked: Improve clarity'},{who:'ai',t:'09:33',text:'Assistant tightened the sentence, adding “within a single election cycle”'},{who:'writer',t:'09:34',text:'You inserted it, then rewrote about 38% of the words'},{who:'source',t:'09:40',text:'You checked the turnout figures against the AEC record'}],
+        sources:[{title:'Australian Electoral Commission: Voter turnout, federal elections',url:'https://www.google.com/search?q=AEC+voter+turnout+history+1922+1925',note:'Turnout in 1922 and 1925 bracket the introduction of compulsory voting.',verdict:'supports'}],
+        meant:'You supplied the example; the assistant tightened the phrasing. You then rewrote much of it and checked the figures, so the claim is now substantively yours.',
+        forText:'The example is sourced and in your voice. One added phrase may state the effect more strongly than the record shows.',
+        forWriter:'You used the assistant for polish and kept the substance. That pattern, ask then rework, protects ownership of your argument.',
+        notice:'“Within a single election cycle” was the assistant’s addition. Does the record support that phrasing as strongly as the sentence states it?',
+        thread:[['writer','Australia example'],['ai','Tighter phrasing'],['source','AEC turnout record']] },
+      p3: { status:'deferred', reason:'Inserted unchanged. Marked to revisit.', marginNote:'why is this the strongest? come back', label:'Liberty objection', category:'argument',
+        steps:[{who:'writer',t:'10:02',text:'Asked: “write the objections section for me”'},{who:'system',t:'10:02',text:'Second thought: you reframed it to “list the three strongest objections; I’ll write the replies”'},{who:'ai',t:'10:03',text:'Assistant listed three objections'},{who:'writer',t:'10:04',text:'You inserted objection 1 unchanged and wrote the reply yourself'},{who:'writer',t:'10:06',text:'You left the passage for later'}],
+        sources:[{title:'Lever, A. (2010). Compulsory voting: a critical perspective. British Journal of Political Science.',url:'https://scholar.google.com/scholar?q=Lever+2010+Compulsory+voting+a+critical+perspective',note:'Develops the liberty-based objection in detail.',verdict:'supports'}],
+        meant:'The assistant framed and worded the objection. The reply after it is yours.',
+        forText:'Your reply depends on an objection you did not frame. If it is not the strongest one, the section answers the wrong challenge.',
+        forWriter:'Anticipating objections is how you test your own position. Re-stating this one in your words would show you understand the debate.',
+        notice:'Could you explain why this is the strongest objection without reopening the conversation? If not, that may be what you left for later.',
+        thread:[['writer','Objections section'],['ai','Liberty objection'],['source','Lever 2010']] },
+    },
+    log: [
+      { id:'s1', action:'evidence', how:'as-is', inserted:'p1' },
+      { id:'s2', action:'clarity', how:'as-is', inserted:'p2' },
+      { id:'s3', action:'counter', how:'revised', inserted:'p3' },
+    ],
+    rows: [], words: 0, aiPct: 0, writerParas: 0, paraCount: 0,
+    notes: [], noteOpen: false, noteDraft: '', margins: [],
+  };
+
+  docHTML() {
+    return `<h1>Compulsory Voting and the Democratic Mandate</h1>
+<p data-meta="1">Essay draft · Politics &amp; Ethics seminar · target 1,500 words</p>
+<p>Democracies draw their legitimacy from the consent of the governed, yet in many established democracies barely two-thirds of eligible citizens vote in national elections. This essay argues that voting in national elections should be compulsory, not because participation is a civic virtue to be enforced, but because a mandate built on a self-selecting electorate is systematically skewed.</p>
+<h2>The problem of unequal turnout</h2>
+<p>Turnout is not randomly distributed. <span data-ai="p1">In the United Kingdom’s 2019 general election, turnout among 18–24 year-olds was estimated at around 47%, compared with 74% among those over 65.</span> When the old vote and the young do not, policy follows the voters, and the mandate a government claims is narrower than the one it exercises.</p>
+<p>Compulsion closes this gap more reliably than any persuasion campaign. <span data-ai="p2">After Australia made voting compulsory in 1924, turnout rose from under 60% to over 90% within a single election cycle,</span> and it has stayed there for a century.</p>
+<h2>Objections</h2>
+<p><span data-ai="p3">The strongest objection is that compulsion violates a liberty right: the freedom not to participate is itself a form of political expression.</span> Yet most compulsory systems permit a blank or spoiled ballot, so what is compelled is attendance, not choice. The citizen who wishes to register dissent still can. They simply cannot be invisible.</p>
+<p>A second objection, that compulsion adds uninformed voters to the rolls, deserves a fuller answer.</p>`;
+  }
+
+  componentDidMount() {
+    const ed = this.editorRef.current; if (!ed) return;
+    const saved = this.loadSaved(); ed.innerHTML = saved ? saved.html : this.docHTML();
+    if (saved) { this.msgN = saved.msgN || this.msgN; this.pidN = saved.pidN || this.pidN; this.setState(saved.state); }
+    window.addEventListener('pagehide', this.saveNow); window.addEventListener('beforeunload', this.saveNow); ed.contentEditable = 'true'; ed.spellcheck = true;
+    this.styleEditor(); this.applyAnnotations(); this.refreshStats();
+    ed.addEventListener('click', this.onEdClick); window.addEventListener('resize', this.onResize);
+    if (document.fonts) document.fonts.ready.then(() => this.computeMargins()); setTimeout(() => this.computeMargins(), 700); ed.addEventListener('input', this.onEdInput);
+    document.addEventListener('selectionchange', this.onSel); document.addEventListener('keydown', this.onKey);
+    if (!saved && this.props.showSetup === false) this.setState({ started:true, tab:'assist' });
+  }
+  SKEY = 'secondthought:session:v1';
+  PKEYS = ['started','ctx','annotations','thread','log','passages','notes','tab','inspect','inspectText'];
+  loadSaved() { try { const r = JSON.parse(localStorage.getItem(this.SKEY) || 'null'); return r && r.html ? r : null; } catch (e) { return null; } }
+  saveNow = () => {
+    const ed = this.editorRef.current; if (!ed) return;
+    const state = {}; this.PKEYS.forEach(k => { state[k] = this.state[k]; });
+    state.thread = state.thread.map(m => { const { revealStart, ...rest } = m; return rest; });
+    try { localStorage.setItem(this.SKEY, JSON.stringify({ html: ed.innerHTML, state, msgN: this.msgN, pidN: this.pidN })); } catch (e) {}
+  };
+  persist() { clearTimeout(this._ps); this._ps = setTimeout(this.saveNow, 400); }
+  componentWillUnmount() {
+    this.saveNow(); window.removeEventListener('pagehide', this.saveNow); window.removeEventListener('beforeunload', this.saveNow);
+    document.removeEventListener('selectionchange', this.onSel); document.removeEventListener('keydown', this.onKey); window.removeEventListener('resize', this.onResize); clearInterval(this._ti);
+  }
+  onResize = () => this.computeMargins();
+  computeMargins() {
+    const ed = this.editorRef.current, w = this.wrapRef.current, pg = this.pageRef.current; if (!ed || !w || !pg) return;
+    const wr = w.getBoundingClientRect(), pr = pg.getBoundingClientRect();
+    const x = (wr.right - pr.right) > 124 ? pr.right - wr.left + 10 : pr.right - wr.left - 100;
+    const out = [];
+    ed.querySelectorAll('[data-ai]').forEach(el => { const p = this.state.passages[el.dataset.ai]; if (!p || p.status !== 'deferred') return; const r = el.getBoundingClientRect(); out.push({ id:el.dataset.ai, x:Math.round(x), y:Math.round(r.top - wr.top - 2), text:p.marginNote || 'come back to this' }); });
+    const k = JSON.stringify(out); if (k !== this._mk) { this._mk = k; this.setState({ margins:out }); }
+  }
+  typTotal(m) { return (m.lead || '').length + (m.parts || []).reduce((a, p) => a + p.text.length, 0) + (m.closer || '').length; }
+  typ = (m) => {
+    return m;
+    const total = this.typTotal(m), reveal = Math.floor((Date.now() - m.revealStart) / 16 * 3);
+    if (reveal >= total) return m;
+    let left = reveal; const take = (t) => { if (!t) return t; const o = t.slice(0, Math.max(0, left)); left -= t.length; return o; };
+    const lead = take(m.lead); const parts = [];
+    for (const p of (m.parts || [])) { if (left <= 0) break; parts.push({ ...p, text:take(p.text) }); }
+    const closer = left > 0 ? take(m.closer) : '';
+    return { ...m, lead, parts, closer, typingNow:true };
+  };
+  typeOut() {
+    if (this._typing) return; this._typing = true;
+    const tick = () => {
+      const busy = this.state.thread.some(m => m.revealStart != null && Math.floor((Date.now() - m.revealStart) / 16 * 3) < this.typTotal(m));
+      this.forceUpdate();
+      const t = this.threadRef.current; if (t) t.scrollTop = t.scrollHeight;
+      if (busy) requestAnimationFrame(tick); else this._typing = false;
+    };
+    requestAnimationFrame(tick);
+  }
+  componentDidUpdate() {
+    { const pv = this._pv || {}; if (this.PKEYS.some(k => pv[k] !== this.state[k])) { this._pv = { ...this.state }; if (this._mountedP) this.persist(); this._mountedP = true; } }
+    const s = this.state, snap = { passages:s.passages, annotations:s.annotations, spotlight:s.spotlight, sidebar:s.sidebar, thread:s.thread, pending:s.pending, thinking:s.thinking };
+    const ps = this._prev || {}, pp = this._prevProps || {};
+    this._prev = snap; this._prevProps = { annotationStyle:this.props.annotationStyle };
+    this._didUpdate(pp, { thread:[], ...ps });
+  }
+  _didUpdate(pp, ps) {
+    const s = this.state;
+    if (ps.passages !== s.passages || ps.annotations !== s.annotations || ps.spotlight !== s.spotlight || pp.annotationStyle !== this.props.annotationStyle) this.applyAnnotations();
+    if (ps.passages !== s.passages || ps.annotations !== s.annotations) { this.refreshStats(); requestAnimationFrame(() => this.computeMargins()); }
+    if (ps.sidebar !== s.sidebar) setTimeout(() => this.computeMargins(), 420);
+    if (ps.thread !== s.thread || ps.pending !== s.pending || ps.thinking !== s.thinking) {
+      requestAnimationFrame(() => { const t = this.threadRef.current; if (t) t.scrollTo({ top: t.scrollHeight }); });
+    }
+  }
+
+  now() { return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', hour12:false }); }
+  trunc(t, n) { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+  mid() { return 'm' + (this.msgN++); }
+  spanEl(id) { const ed = this.editorRef.current; return ed ? ed.querySelector(`[data-ai="${id}"]`) : null; }
+  relPos(x, y) { const sc = this.scrollRef.current, b = sc.getBoundingClientRect(); return { x: x - b.left + sc.scrollLeft, y: y - b.top + sc.scrollTop }; }
+
+  styleEditor() {
+    const ed = this.editorRef.current; if (!ed) return;
+    const sans = "'IBM Plex Sans', system-ui, sans-serif";
+    const elite = "'Source Serif 4', Georgia, serif";
+    ed.querySelectorAll('h1').forEach(h => Object.assign(h.style, { fontFamily:elite, fontSize:'32px', lineHeight:'1.2', fontWeight:'600', letterSpacing:'0', margin:'0 0 12px' }));
+    ed.querySelectorAll('h2').forEach(h => Object.assign(h.style, { fontFamily:elite, fontSize:'19px', fontWeight:'600', letterSpacing:'0.01em', textTransform:'none', color:'#424346', margin:'44px 0 12px' }));
+    ed.querySelectorAll('p').forEach(p => { if (p.dataset.meta) Object.assign(p.style, { fontFamily:sans, fontSize:'12.5px', color:'#838487', margin:'0 0 40px', letterSpacing:'0.02em' }); else Object.assign(p.style, { margin:'0 0 18px', textWrap:'pretty' }); });
+    ed.querySelectorAll('blockquote').forEach(b => Object.assign(b.style, { margin:'0 0 18px', padding:'0 32px', fontStyle:'italic', color:'#454649' }));
+    ed.querySelectorAll('ul,ol').forEach(l => Object.assign(l.style, { margin:'0 0 18px', paddingLeft:'26px' }));
+    ed.querySelectorAll('table').forEach(t => Object.assign(t.style, { borderCollapse:'collapse', width:'100%', margin:'8px 0 24px', fontFamily:sans, fontSize:'13.5px', lineHeight:'1.45' }));
+    ed.querySelectorAll('td,th').forEach(c => Object.assign(c.style, { border:'1px solid #dcdde0', padding:'8px 10px', textAlign:'left', verticalAlign:'top' }));
+    ed.querySelectorAll('th').forEach(c => Object.assign(c.style, { background:'#f2f3f6', fontWeight:'500' }));
+    ed.querySelectorAll('img').forEach(i => Object.assign(i.style, { maxWidth:'100%', display:'block', margin:'12px 0 22px', borderRadius:'3px' }));
+  }
+
+  applyAnnotations() {
+    const ed = this.editorRef.current; if (!ed) return;
+    const C = this.C, s = this.state, ann = s.annotations, wash = (this.props.annotationStyle ?? 'wash') === 'wash';
+    ed.style.color = s.spotlight && ann ? '#b6b7ba' : C.ink;
+    ed.querySelectorAll('[data-ai]').forEach(el => {
+      const p = s.passages[el.dataset.ai]; const st = p ? p.status : 'ai';
+      Object.assign(el.style, { background:'', borderBottom:'', textDecoration:'', outline:'', color:'', borderRadius:'2px', padding:'1px 0', transition:'background .4s, color .4s, border-color .4s', cursor: ann ? 'pointer' : 'text' });
+      if (!ann && st !== 'editing') return;
+      if (st === 'editing') Object.assign(el.style, { outline:`1px dashed ${C.indigo}`, outlineOffset:'3px', background:'#fff' });
+      else if (st === 'flagged') Object.assign(el.style, { background: wash ? C.ochreWash : '', borderBottom:`1.5px dotted ${C.ochre}` });
+      else if (st === 'deferred') Object.assign(el.style, { textDecoration:`underline wavy ${C.ochre}`, textDecorationThickness:'1px', textUnderlineOffset:'5px', background: wash ? 'oklch(0.975 0.025 85)' : '' });
+      else if (st === 'verified') Object.assign(el.style, { borderBottom:`1px solid ${C.green}`, background: wash ? 'oklch(0.975 0.015 150)' : '' });
+      else if (st === 'revised') Object.assign(el.style, { borderBottom:`1px dashed ${C.indigoLine}` });
+      else Object.assign(el.style, { background: wash ? C.indigoWash : '', borderBottom:`1px solid ${C.indigoSoft}` });
+      if (s.spotlight) Object.assign(el.style, { color: C.ink, background: st === 'flagged' || st === 'deferred' ? C.ochreWash : C.indigoWash });
+    });
+  }
+
+  refreshStats() {
+    const ed = this.editorRef.current; if (!ed) return;
+    const C = this.C, ps = this.state.passages;
+    const col = { writer:C.writer, ai:C.indigo, revised:C.indigoSoft, verified:C.green, flagged:C.ochre, deferred:'oklch(0.75 0.09 75)' };
+    const rows = []; this.rowEls = []; let total = 0, ai = 0, writerParas = 0;
+    [...ed.children].forEach(b => {
+      if (/^H[1-6]$/.test(b.tagName) || b.dataset.meta) return;
+      const len = b.textContent.trim().length; if (!len) return;
+      const counts = { writer: len };
+      b.querySelectorAll('[data-ai]').forEach(sp => { const st = (ps[sp.dataset.ai] || {}).status || 'ai'; const k = st === 'editing' ? 'revised' : st; const l = sp.textContent.length; counts.writer -= l; counts[k] = (counts[k] || 0) + l; ai += l; });
+      counts.writer = Math.max(0, counts.writer); total += len;
+      if (counts.writer === len) writerParas++;
+      const segs = ['writer','revised','verified','ai','flagged','deferred'].filter(k => counts[k] > 0).map(k => ({ w: (counts[k] / len * 100).toFixed(1), c: col[k] }));
+      this.rowEls.push(b); rows.push({ label: '¶' + (rows.length + 1), segs });
+    });
+    const words = (ed.innerText.match(/\S+/g) || []).length;
+    this.setState({ rows, words, aiPct: total ? Math.round(ai / total * 100) : 0, writerParas, paraCount: rows.length });
+  }
+
+  paraOf(id) { const el = this.spanEl(id); if (!el) return null; const i = this.rowEls.findIndex(r => r.contains(el)); return i < 0 ? null : i + 1; }
+
+  onKey = (e) => { if (e.key === 'Escape' && (this.state.pop || this.state.bubble)) this.setState({ pop:null, bubble:null }); };
+
+  onSel = () => {
+    cancelAnimationFrame(this._raf);
+    this._raf = requestAnimationFrame(() => {
+      const sel = window.getSelection(), ed = this.editorRef.current;
+      if (!sel || !sel.rangeCount || !ed) return;
+      const r = sel.getRangeAt(0);
+      if (!ed.contains(r.commonAncestorContainer)) return;
+      this.savedRange = r.cloneRange();
+      if (r.collapsed) { if (this.state.bubble) this.setState({ bubble:null }); return; }
+      const t = sel.toString().trim(); if (t.length < 3) return;
+      const rect = r.getBoundingClientRect(); const p = this.relPos(rect.left + rect.width / 2, rect.top);
+      this.setState({ bubble:{ x: Math.max(110, p.x), y: p.y - 46, text:t }, selText:t, pop:null });
+    });
+  };
+
+  onEdClick = (e) => {
+    const el = e.target.closest && e.target.closest('[data-ai]');
+    const sel = window.getSelection();
+    if (el && this.state.annotations && sel && sel.isCollapsed) {
+      const p = this.state.passages[el.dataset.ai]; if (p && p.status === 'editing') return;
+      const sc = this.scrollRef.current; const pos = this.relPos(e.clientX, e.clientY);
+      const x = Math.min(Math.max(pos.x - 155, 12), sc.clientWidth - 330);
+      this.setState({ pop:{ id: el.dataset.ai, x, y: pos.y + 18 }, bubble:null });
+    } else if (this.state.pop) this.setState({ pop:null });
+  };
+
+  onEdInput = () => {
+    const sel = window.getSelection(); const n = sel && sel.anchorNode;
+    const host = n && (n.nodeType === 1 ? n : n.parentElement);
+    const el = host && host.closest && host.closest('[data-ai]');
+    if (el) {
+      const id = el.dataset.ai, p = this.state.passages[id];
+      if (p && p.status !== 'revised') this.updPassage(id, { status:'revised', reason:'Revised by you after insertion.' }, { who:'writer', text: p.status === 'editing' ? 'You corrected the passage' : 'You edited the passage' });
+    }
+    this.persist(); clearTimeout(this._st); this._st = setTimeout(() => { this.styleEditor(); this.refreshStats(); this.computeMargins(); }, 450);
+  };
+
+  updPassage(id, patch, step) {
+    this.setState(s => { const p = s.passages[id]; if (!p) return null; const steps = step ? [...p.steps, { ...step, t: this.now() }] : p.steps; return { passages: { ...s.passages, [id]: { ...p, ...patch, steps } } }; });
+  }
+
+  restoreRange() {
+    const ed = this.editorRef.current; if (!ed) return;
+    if (document.activeElement !== ed) { ed.focus(); if (this.savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(this.savedRange); } }
+  }
+  cmd(name, val) { return (e) => { e.preventDefault(); this.restoreRange(); document.execCommand(name, false, val); this.styleEditor(); }; }
+
+  onFile = (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { this.restoreRange(); document.execCommand('insertHTML', false, `<img src="${rd.result}" alt="">`); this.styleEditor(); };
+    rd.readAsDataURL(f); e.target.value = '';
+  };
+
+  insertIntoDoc(text, owner, pid) {
+    const ed = this.editorRef.current; if (!ed) return;
+    let anchor = null; const r = this.savedRange;
+    if (r && ed.contains(r.endContainer)) { let n = r.endContainer; while (n && n.parentNode !== ed) n = n.parentNode; anchor = n; }
+    const p = document.createElement('p');
+    if (owner === 'ai') { const s = document.createElement('span'); s.dataset.ai = pid; s.textContent = text; p.appendChild(s); p.appendChild(document.createTextNode(' ')); }
+    else p.textContent = text;
+    if (anchor && anchor.nextSibling) ed.insertBefore(p, anchor.nextSibling); else ed.appendChild(p);
+    this.styleEditor(); this.applyAnnotations(); this.refreshStats();
+    const sc = this.scrollRef.current;
+    sc.scrollTo({ top: p.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 160, behavior:'smooth' });
+    const pg = this.pageRef.current; if (false) pg.animate([{ transform:'translateX(0)' }, { transform:'translateX(-16px)' }, { transform:'translateX(3px)' }, { transform:'translateX(0)' }], { duration:560, easing:'cubic-bezier(.3,.7,.4,1)' });
+    p.animate([{ background: owner === 'ai' ? 'oklch(0.9 0.05 262)' : 'oklch(0.92 0.05 150)' }, { background:'transparent' }], { duration:1800, easing:'ease-out' });
+    const range = document.createRange(); range.setStartAfter(p); range.collapse(true); this.savedRange = range;
+  }
+
+  flash(el) { if (!el) return; const sc = this.scrollRef.current; sc.scrollTo({ top: el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 160, behavior:'smooth' }); el.animate([{ background:'oklch(0.92 0.04 85)' }, { background:'transparent' }], { duration:1600, easing:'ease-out' }); }
+
+  classify(text) {
+    if (/\b(write|draft|generate|compose|paragraph|essay|argue for|produce)\b/i.test(text)) return 'draft';
+    if (/counter|objection|opposing/i.test(text)) return 'counter';
+    if (/evidence|source|fact|statistic|cite/i.test(text)) return 'evidence';
+    if (/clear|clarity|concise|reword|rephrase|flow/i.test(text)) return 'clarity';
+    if (/challenge|weak|critique|push back|flaw/i.test(text)) return 'challenge';
+    return 'explore';
+  }
+
+  buildST(action, original, attached) {
+    const C = this.C, fc = this.flatCtx(), stage = fc.stage, early = fc.early, sel = attached ? ' in the selected passage' : '';
+    const restated = {
+      draft: original.length > 60 && !/^write the next/i.test(original) ? original : 'Write a paragraph that replies to the objection that compulsory voting adds uninformed voters.',
+      counter: `List the strongest objections to my argument${sel} as short points. I’ll write the replies.`,
+      evidence: `Check whether the factual claims${sel} hold up, and tell me where I could verify them.`,
+      clarity: `Point out where${attached ? ' the selected passage' : ' my writing'} is unclear. Suggest a tighter version; don’t impose it.`,
+      challenge: `Argue against my reasoning${sel} as a sceptical reader would, without proposing a fix.`,
+      explore: `Offer a few directions I could take${attached ? ' the idea in this passage' : ' this idea'}, then ask me which fits my argument.`,
+    }[action];
+    const socratic = { key:'socratic', text:'Have a Socratic chat with me about whether compulsory voting really produces a more legitimate mandate', why:'You do the reasoning; the assistant only asks questions.' };
+    const alts = {
+      draft: [socratic, { key:'outline', text:'Ask me three questions to help me outline my own reply first', why:'Keeps the structure with you.' }, { key:'critique', text:'Let me write the reply, then critique what I wrote', why:'Feedback on your draft instead of a substitute for it.' }],
+      counter: [{ key:'anticipate', text:'I’ll list the objections I expect first. Then tell me what’s missing', why:'Tests your own model of the debate before adding to it.' }],
+      clarity: [{ key:'selfedit', text:'Mark the unclear sentences. I’ll rewrite them', why:'Revision stays in your voice.' }],
+      explore: [socratic],
+      challenge: [], evidence: [],
+    }[action];
+    return { action, original, attached, restated:'', suggested:restated, goal:'', why:'', alts, altSel:null, step:1 };
+  }
+
+  riskFor(action) {
+    const C = this.C, fc = this.flatCtx(), stage = fc.stage, early = fc.early;
+    let risk;
+    if (action === 'draft' && early) risk = { color:C.ochre, wash:'oklch(0.97 0.03 85)', title:'This hands the drafting to the assistant', body:`At the ${stage.toLowerCase()} stage, delegating composition tends to lower ownership and recall of your own argument. You can still proceed. Generated text will be marked for review.`, good:'Fluent, conventional prose; well-rehearsed arguments', weak:'Your sources and stance; claims stated confidently but unchecked' };
+    else if (action === 'draft') risk = { color:C.indigo, wash:'oklch(0.97 0.012 262)', title:'Moderate reliance risk', body:'Lower risk during revision. Check the meaning hasn’t drifted.', good:'Rephrasing, smoothing transitions', weak:'Preserving your exact claim' };
+    else if (action === 'evidence') risk = { color:C.indigo, wash:'oklch(0.97 0.012 262)', title:'Useful, with a caveat', body:'It can spot unsupported claims but cannot open sources. Treat its figures as leads, not citations.', good:'Spotting unsupported claims; suggesting where to look', weak:'Exact figures, dates and citations' };
+    else if (action === 'clarity' && early) risk = { color:C.indigo, wash:'oklch(0.97 0.012 262)', title:'Worth a moment’s thought', body:`Polishing now can lock in phrasing before the argument settles.`, good:'Shorter sentences, plainer words', weak:'Keeping nuance you intended' };
+    else risk = { color:C.green, wash:'oklch(0.97 0.018 150)', title:'Keeps the reasoning with you', body:'Objections and scrutiny deepen your engagement. They don’t replace it.', good:'Surfacing common objections and angles quickly', weak:'Knowing which point matters most to your reader' };
+    return risk;
+  }
+  liveRisk(P) {
+    const t = (P.restated || '').toLowerCase(), gen = /\b(write|draft|generate|compose|paragraph|rewrite)\b/.test(t);
+    let a = P.action;
+    if (gen) a = 'draft'; else if (a === 'draft' && t.trim()) a = this.classify(t);
+    const risk = { ...this.riskFor(a) };
+    const why = (P.why || '').toLowerCase(); let note = '';
+    if (a !== P.action) note = a === 'draft' ? 'Your edit now asks for generated text, so the risk has changed.' : 'Your edit keeps the writing with you, so the risk has dropped.';
+    else if (/stuck|don.?t know|no idea|unsure|confus|can.?t/.test(why)) note = 'You say you’re stuck. A question-led alternative may help more than an answer.';
+    else if (/time|quick|deadline|fast|hurry|busy/.test(why)) note = 'Short on time? Check the output before relying on it.';
+    else if (/check|verify|confirm|sure/.test(why)) note = 'Good reason. Still compare its answer against a source.';
+    risk.note = note;
+    risk.verdict = (a === 'draft' && this.flatCtx().early) ? 'Not quite' : (a === 'draft' || a === 'evidence' || (a === 'clarity' && this.flatCtx().early)) ? 'Maybe' : 'Yes!';
+    const C = this.C, pal = { 'Yes!':['oklch(0.55 0.13 150)', 'oklch(0.95 0.045 155)', 'oklch(0.85 0.07 155)'], 'Maybe':['oklch(0.5 0.12 260)', 'oklch(0.95 0.028 260)', 'oklch(0.85 0.05 260)'], 'Not quite':['oklch(0.62 0.13 75)', 'oklch(0.95 0.06 90)', 'oklch(0.85 0.09 85)'] }[risk.verdict];
+    risk.color = pal[0]; risk.wash = pal[1]; risk.line = pal[2];
+    return risk;
+  }
+  proceed = () => this.setState(x => { const P = x.pending; const g = P.goal.trim().replace(/^i want\s*/i, ''); return { pending:{ ...P, step:2, restated: P.suggested + (g ? ' I want ' + g.replace(/[.\s]+$/, '') + '.' : '') } }; });
+  shouldPause(action) {
+    const m = this.props.secondThought ?? 'always';
+    if (m === 'off') return false;
+    if (m === 'generative') return action === 'draft';
+    return true;
+  }
+
+  send(key) {
+    const s = this.state;
+    const raw = key ? this.ASK[key] : s.input.trim();
+    if (!raw || s.thinking) return;
+    if (s.mode && !key) return this.modeReply(raw);
+    const action = key || this.classify(raw);
+    const attached = s.attached || (key && s.selText && s.bubble ? s.selText : '');
+    const user = { id:this.mid(), role:'user', text:raw, attached, label:this.LABEL[action] };
+    const pend = this.shouldPause(action) ? this.buildST(action, raw, attached) : null;
+    this.setState(x => ({ thread:[...x.thread, user], input:'', attached:'', pending:pend, tab:'assist', sidebar:true, mode:null }));
+    if (!pend) this.respond(action, { original:raw, final:raw, how:'direct', attached });
+  }
+
+  confirm = () => {
+    const P = this.state.pending; if (!P) return;
+    if (P.altSel != null) {
+      const alt = P.alts[P.altSel];
+      this.setState(x => ({ pending:null, thread:[...x.thread, { id:this.mid(), role:'note', text:`Second thought: you chose “${alt.text}”` }] }));
+      this.runAlt(alt.key, P);
+    } else {
+      const fin = P.restated.trim() || P.suggested, changed = fin.trim() !== P.original.trim();
+      this.setState(x => ({ pending:null, thread:[...x.thread, { id:this.mid(), role:'note', text: changed ? 'Second thought: request restated' : 'Second thought: sent as written' }] }));
+      this.respond(P.action, { original:P.original, final:fin, how: changed ? 'revised' : 'as-is', attached:P.attached, goal:P.goal });
+    }
+  };
+  withdraw = () => {
+    const P = this.state.pending;
+    this.setState(x => ({ pending:null, thread:[...x.thread, { id:this.mid(), role:'note', text:'Withdrawn. You kept this one.' }], log:[...x.log, { id:this.mid(), action:P.action, how:'withdrawn' }] }));
+  };
+
+  runAlt(key, P) {
+    const meta = { original:P.original, final:P.alts.find(a => a.key === key).text, how:'alternative', attached:P.attached };
+    if (key === 'socratic') return this.aiSay({ lead:this.SOCRATIC[0] }, () => this.setState(x => ({ mode:{ type:'socratic', step:0, answers:[] }, log:[...x.log, { id:this.mid(), action:'socratic', how:'alternative' }] })));
+    if (key === 'anticipate') return this.aiSay({ lead:'List the objections you expect, separated by commas. I’ll only tell you what’s missing.' }, () => this.setState({ mode:{ type:'anticipate' } }));
+    if (key === 'critique') return this.aiSay({ lead:'Good. Write your reply in the document. When you’re ready, select it and choose “Challenge my argument”. I’ll respond to your text, not replace it.' }, () => this.setState(x => ({ log:[...x.log, { id:this.mid(), action:'challenge', how:'alternative' }] })));
+    this.respond(key, meta);
+  }
+
+  aiSay(msg, after) {
+    this.setState({ thinking:true });
+    setTimeout(() => { const id = this.mid(); this.setState(x => ({ thinking:false, thread:[...x.thread, { id, role:'ai', parts:[], ...msg, revealStart:Date.now() }] }), () => { this.typeOut(); if (after) after(); }); }, 900);
+  }
+
+  modeReply(text) {
+    const mode = this.state.mode;
+    this.setState(x => ({ thread:[...x.thread, { id:this.mid(), role:'user', text }], input:'' }));
+    if (mode.type === 'socratic') {
+      const answers = [...mode.answers, text], step = mode.step + 1;
+      if (step < 3) return this.aiSay({ lead:this.SOCRATIC[step] }, () => this.setState({ mode:{ type:'socratic', step, answers } }));
+      return this.aiSay({ lead:'Your reasoning, in your words. Nothing added:', parts:[{ id:0, text:answers.join(' '), insertable:true, owner:'writer' }], closer:'Notice where your second answer is less certain than your first. Your next paragraph may belong there.', meta:{ action:'socratic', label:'Socratic dialogue', original:'Socratic dialogue', how:'alternative' } }, () => this.setState({ mode:null }));
+    }
+    if (mode.type === 'anticipate') {
+      const covered = /liberty|freedom|choice/i.test(text), info = /inform|ignor|knowledge|random/i.test(text), cost = /fine|enforce|cost|penal|poor/i.test(text);
+      const parts = [];
+      if (!covered) parts.push({ id:0, text:'Liberty: the freedom to abstain is itself a form of political expression.', insertable:true });
+      if (!info) parts.push({ id:1, text:'Information: compulsion adds disengaged voters, who may choose randomly or by ballot position.', insertable:true });
+      if (!cost) parts.push({ id:2, text:'Enforcement: fines fall hardest on those already marginalised, so a policy meant to equalise voice may introduce a regressive penalty.', insertable:true });
+      parts.push({ id:3, text:'Alternatives: automatic registration or weekend voting might narrow the turnout gap without compulsion. A sceptic will ask why you skip them.', insertable:true });
+      return this.aiSay({ lead:`You anticipated ${4 - parts.length > 0 ? 'some of the main lines already' : 'none of the lines I would have raised. Worth noticing'}. What’s missing:`, parts, closer:'Which of these would your tutor raise first?', meta:{ action:'anticipate', label:'Anticipated objections', original:text, how:'alternative' } }, () => this.setState(x => ({ mode:null, log:[...x.log, { id:'a' + this.msgN, action:'anticipate', how:'alternative' }] })));
+    }
+  }
+
+  RESP(action, meta) {
+    const a = meta.attached;
+    const R = {
+      counter: { lead:'Three objections a sceptical reader is likely to raise:', parts:[
+        { text:'Liberty: the freedom to abstain is itself a form of political expression, and compelling attendance treats citizens as instruments of legitimacy rather than its source.' },
+        { text:'Information: compulsion adds disengaged voters who may choose randomly or by ballot position; estimates of this “donkey vote” in Australia run at one to two percent of ballots.', flag:true, flagNote:'Specific figure, no source. Verify before use.' },
+        { text:'Enforcement: fines fall hardest on those already marginalised, so a policy meant to equalise voice may introduce a new, regressive penalty.' } ], closer:'Which of these does your draft already answer?' },
+      draft: { lead:'A possible reply to the uninformed-voters objection:', parts:[
+        { text:'Critics argue that compulsion floods the electorate with uninformed voters. Yet the obligation to vote appears to raise political knowledge over time, as citizens anticipate having to choose.', flag:true, flagNote:'Causal claim stated confidently; the research on this is mixed.' },
+        { text:'Moreover, the “informed voter” standard is applied selectively: voluntary systems already include many low-information voters, simply skewed towards the advantaged. Compulsion does not lower the quality of the electorate so much as make its composition honest.' } ], closer:'Before inserting: is this the reply you would have made?' },
+      evidence: { lead: a ? 'The factual claims in your selection:' : 'The factual claims in your draft that most need support:', parts:[
+        { text:'“Turnout among 18–24 year-olds was around 47%”: consistent with a widely reported 2019 survey estimate, but survey-based figures tend to overstate turnout; validated studies measure the gap differently.', flag:true, flagNote:'I can’t open sources. Check the original survey before citing.' },
+        { text:'“Policy follows the voters” is an interpretive claim rather than a factual one. It would be stronger with a concrete example, such as protected pensions versus youth spending.' } ], closer:'Where would you look first?' },
+      clarity: { lead:'Where the prose could be clearer:', parts:[
+        { text:'Your thesis sentence carries two ideas: legitimacy and skew. Give each its own sentence.', insertable:false },
+        { text:'A mandate is only as representative as the electorate that grants it. When turnout is voluntary, the electorate selects itself. It does not select evenly.' } ], closer:'The second card is a suggestion, not a replacement. Keep only what sounds like you.' },
+      selfedit: { lead:'Sentences a reader may stumble on. The rewriting is yours:', parts:[
+        { text:'“…but because a mandate built on a self-selecting electorate is systematically skewed.” Skewed towards whom? Name it.', insertable:false },
+        { text:'“…the mandate a government claims is narrower than the one it exercises.” Strong line. “Narrower” is abstract: narrower in what?', insertable:false } ] },
+      challenge: { lead:'Pushing back on your reasoning:', parts:[
+        { text:'You assume unequal turnout causes unequal policy. A sceptic could argue the causation runs the other way: groups abstain because policy already ignores them. Then compulsion only treats a symptom.', insertable:false },
+        { text:'Your essay moves from “the mandate is skewed” to “voting should be compulsory”. What makes compulsion better than lowering barriers, such as automatic registration or weekend voting?', insertable:false } ], closer:'How would you answer the second point in one sentence?' },
+      explore: { lead:'A few directions you could take this:', parts:[
+        { text:'Treat voting like jury duty: a civic obligation justified by the quality of the collective decision, not by individual preference.' },
+        { text:'Consider what compulsion does to campaigns: parties no longer spend on mobilisation and may compete for persuadable voters instead.' } ], closer:'Which feels closest to what you want to argue?' },
+      outline: { lead:'Three questions to outline your own reply:', parts:[
+        { text:'1. What exactly is the worry: that outcomes get worse, or that legitimacy does?', insertable:false },
+        { text:'2. What does your argument about skewed mandates imply about voters who are currently absent?', insertable:false },
+        { text:'3. What evidence would a sceptic accept?', insertable:false } ], closer:'Jot your answers in the document. I won’t write the paragraph unless you ask again.' },
+    }[action];
+    return R;
+  }
+
+  respond(action, meta) {
+    const id = this.mid();
+    this.setState(x => ({ thinking:true, log:[...x.log, { id, action, how:meta.how }] }));
+    setTimeout(() => {
+      const r = this.RESP(action, meta);
+      const msg = { id, role:'ai', lead:r.lead, closer:r.closer, parts:r.parts.map((p, i) => ({ id:i, insertable:true, ...p })), meta:{ ...meta, action, label:this.LABEL[action] } };
+      this.setState(x => ({ thinking:false, thread:[...x.thread, { ...msg, revealStart:Date.now() }] }), () => this.typeOut());
+    }, 1300);
+  }
+
+  insertPart(mid, partId) {
+    const m = this.state.thread.find(t => t.id === mid); if (!m) return;
+    const part = m.parts.find(p => p.id === partId); if (!part || part.inserted) return;
+    const mark = (x) => x.thread.map(t => t.id !== mid ? t : { ...t, parts: t.parts.map(p => p.id === partId ? { ...p, inserted:true } : p) });
+    if (part.owner === 'writer') {
+      this.setState(x => ({ thread:[...mark(x), { id:this.mid(), role:'note', text:'Inserted as your writing. These are your words.' }] }), () => this.insertIntoDoc(part.text, 'writer'));
+      return;
+    }
+    const pid = 'p' + (++this.pidN), meta = m.meta || {}, t = this.now();
+    const howTxt = { 'as-is':'Second thought: sent as written', revised:'Second thought: you restated the request', alternative:'Second thought: you chose an alternative', direct:'Sent directly' }[meta.how] || 'Sent directly';
+    const steps = [
+      meta.attached && { who:'writer', t, text:`You attached: “${this.trunc(meta.attached, 70)}”` },
+      { who:'writer', t, text:`Asked (${meta.label}): “${this.trunc(meta.original, 80)}”` },
+      { who:'system', t, text:howTxt + (meta.how === 'revised' ? ` → “${this.trunc(meta.final, 80)}”` : '') },
+      { who:'ai', t, text: part.flag ? 'Assistant responded; one claim flagged for checking' : 'Assistant responded' },
+      { who:'writer', t, text:'You inserted this passage' },
+    ].filter(Boolean);
+    const q = encodeURIComponent(this.trunc(part.text, 90));
+    const passage = { status: part.flag ? 'flagged' : 'ai', reason: part.flag ? part.flagNote : 'Generated by the assistant; not yet reviewed by you.', label:meta.label, category:this.CAT[meta.action] || 'ideation', steps,
+      sources: part.flag ? [{ title:'Suggested search for this claim', url:'https://scholar.google.com/scholar?q=' + q, note:'The assistant could not cite a source for this claim.', verdict:'unchecked' }] : [],
+      thread:[['writer', meta.attached ? 'Your passage' : 'Your request'], ['ai', meta.label]] };
+    this.setState(x => ({ thread:mark(x), passages:{ ...x.passages, [pid]:passage }, log:x.log.map(l => l.id === mid ? { ...l, inserted:pid } : l) }), () => this.insertIntoDoc(part.text, 'ai', pid));
+  }
+
+  correct(id) {
+    const el = this.spanEl(id); if (!el) return;
+    const p = this.state.passages[id];
+    this.updPassage(id, { status:'editing', prev:p.status });
+    this.setState({ pop:null });
+    setTimeout(() => { const ed = this.editorRef.current; ed.focus(); const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }, 30);
+  }
+  defer(id) {
+    const p = this.state.passages[id]; if (!p) return;
+    if (p.status === 'deferred') this.updPassage(id, { status:'flagged', reason:'You resumed this passage.' }, { who:'writer', text:'You resumed the passage' });
+    else this.updPassage(id, { status:'deferred', reason:'You noticed something here and set it aside.', marginNote: p.marginNote || 'come back to this' }, { who:'writer', text:'You left this for later' });
+    this.setState({ pop:null });
+  }
+  verify(id) { this.updPassage(id, { status:'verified', reason:'You checked this against a source.' }, { who:'source', text:'You marked the passage as verified' }); }
+  inspect(id, text) { this.setState({ inspect:id, inspectText:text || '', tab:'passage', sidebar:true, pop:null, bubble:null }); }
+
+  flatCtx() {
+    const c = this.state.ctx, j = (a) => !a.length ? 'unset' : a.length > 2 ? a.slice(0, -1).join(', ') + ' & ' + a.slice(-1) : a.join(' & ');
+    const purpose = c.purpose.map(p => p === 'Other' ? (c.purposeOther.trim() || 'other') : p);
+    return { ...c, stage:j(c.stage), context:j(c.context), purpose:j(purpose), early: !c.stage.length || c.stage.some(x => x !== 'Revision') };
+  }
+  pts(t) {
+    const s = ((t || '').match(/[^.?!]+[.?!]+[”’"]?\s*/g) || [t || '']).map(x => x.trim()).filter(Boolean);
+    const out = []; let cur = [];
+    s.forEach(x => { cur.push(x); if (/\?[”’"]?$/.test(x)) { out.push(cur.join(' ')); cur = []; } });
+    if (cur.length) { if (out.length && !/\?/.test(cur.join(''))) out[out.length - 1] += ' ' + cur.join(' '); else out.push(cur.join(' ')); }
+    return out;
+  }
+  ptv(key, t) { const p = this.pts(t); return { [key + 'Pts']:p, [key + 'One']:p.length <= 1, [key + 'Many']:p.length > 1, [key + 'First']:p[0] || '' }; }
+  renderVals() {
+    const s = this.state, C = this.C, raw = s.ctx, ctx = this.flatCtx(), early = ctx.early;
+    const statusLabel = { ai:'AI text · unreviewed', flagged:'Needs checking', deferred:'Left for later', verified:'Verified', revised:'Revised by you', editing:'Correcting…' };
+    const statusColor = { ai:C.indigo, flagged:C.ochre, deferred:C.ochre, verified:C.green, revised:C.indigoSoft, editing:C.indigo };
+    const recs = [...new Set((raw.stage.length ? raw.stage : ['Drafting']).flatMap(x => this.REC[x] || []))].slice(0, 3);
+    const tabsBase = [['assist','Assistant'], ['reflect','Reflect'], ['context','Context']].concat(s.inspect ? [['passage','Passage']] : []);
+    const tabs = tabsBase.map(([k, l]) => ({ label:l, initial:l[0], active:s.tab === k, inactive:s.tab !== k, go:() => this.setState({ tab:k, sidebar:true }) }));
+
+    const dims = this.DIMS.map((d, i) => {
+      const multi = d.key !== 'audience', cur = raw[d.key], has = (l) => multi ? cur.includes(l) : cur === l;
+      const selOpts = d.opts.filter(o => has(o[0]));
+      const selDef = selOpts.length === 1 ? selOpts[0][1] + '.' : selOpts.length ? selOpts.map(o => o[0]).join(' + ') : '';
+      return { name:d.name, num:'0' + (i + 1), q:d.q, multi, selDef, showAud: d.key === 'audience' && cur === 'Yes', showOther: d.key === 'purpose' && cur.includes('Other'),
+        opts: d.opts.map(([label, def]) => ({ label, title:def, sel:has(label), unsel:!has(label), pick:() => this.setState(x => { const c = x.ctx[d.key]; const v = multi ? (c.includes(label) ? c.filter(y => y !== label) : [...c, label]) : label; return { ctx:{ ...x.ctx, [d.key]:v } }; }) })) };
+    });
+    const recLabels = recs.map(k => this.LABEL[k].toLowerCase());
+    const ctxImplication = `At the ${ctx.stage.toLowerCase()} stage of ${ctx.purpose.toLowerCase()} ${ctx.context.toLowerCase()} writing, the assistant will lead with ${recLabels.slice(0, -1).join(', ')} and ${recLabels.slice(-1)}. ` + (early ? 'It will pause before generating text. Your own drafting matters most here.' : 'Generative help is lower risk now. AI text is still marked.');
+
+    const actions = this.ACTIONS.filter(a => recs.includes(a.key)).map(a => ({ ...a, go:() => this.send(a.key) }));
+
+    const thread = s.thread.map(this.typ).map(m => ({ ...m, typingNow:!!m.typingNow, isUser:m.role === 'user', isAi:m.role === 'ai', isNote:m.role === 'note', hasAttached:!!m.attached, attachedShort:this.trunc(m.attached, 140), hasLead:!!m.lead, hasCloser:!!m.closer, hasLabel:!!m.label,
+      parts:(m.parts || []).map(p => ({ ...p, flag:!!p.flag, plain:!p.flag, isWriter:p.owner === 'writer', canInsert:p.insertable !== false && !p.inserted && !m.typingNow, isInserted:!!p.inserted, insert:() => this.insertPart(m.id, p.id) })) }));
+
+    const P = s.pending;
+    const LR = P ? this.liveRisk(P) : null;
+    const st = P ? { ...P, isStep1:P.step === 1, isStep2:P.step === 2, hasGoal:!!P.goal.trim(), hasWhy:!!P.why.trim(), hasAlts:P.alts.length > 0, riskColor:LR.color, riskWash:LR.wash, riskLine:LR.line, riskTitle:LR.title, riskBody:LR.body, good:LR.good, weak:LR.weak, riskNote:LR.note, verdict:LR.verdict, hasRiskNote:!!LR.note,
+      sendLabel: P.altSel != null ? 'Use alternative' : ((P.restated.trim() || P.suggested).trim() !== P.original.trim() ? 'Send restated' : 'Send'),
+      alts: P.alts.map((a, i) => ({ ...a, tilt:0, sel:P.altSel === i, unsel:P.altSel !== i, pick:() => this.setState(x => ({ pending:{ ...x.pending, altSel: x.pending.altSel === i ? null : i } })) })) } : { alts:[] };
+
+    const pp = s.pop && s.passages[s.pop.id];
+    const popv = pp ? { x:s.pop.x, y:s.pop.y, label:statusLabel[pp.status], color:statusColor[pp.status], reason:pp.reason,
+      deferLabel: pp.status === 'deferred' ? 'Resume' : 'Later', deferSub: pp.status === 'deferred' ? 'take it up' : 'note & defer',
+      verify:() => this.inspect(s.pop.id), correct:() => this.correct(s.pop.id), defer:() => this.defer(s.pop.id), more:() => this.inspect(s.pop.id) } : {};
+
+    const passArr = Object.entries(s.passages).filter(([id]) => !!this.spanEl(id));
+    const deferred = passArr.filter(([, p]) => p.status === 'deferred').map(([id, p]) => ({ excerpt:this.trunc(this.spanEl(id).textContent, 110), reason:p.reason, open:() => this.inspect(id) }));
+    const flaggedN = passArr.filter(([, p]) => p.status === 'flagged').length;
+
+    const reqs = s.log.filter(l => l.how !== 'withdrawn'), withdrawn = s.log.length - reqs.length;
+    const reshaped = s.log.filter(l => l.how === 'revised' || l.how === 'alternative').length;
+    const counts = {}; reqs.forEach(l => { const k = this.LABEL[l.action].toLowerCase(); counts[k] = (counts[k] || 0) + 1; });
+    const byLabel = Object.entries(counts).map(([k, n]) => n > 1 ? `${k} ×${n}` : k).join(', ');
+    const insertedN = passArr.length, engaged = passArr.filter(([, p]) => p.status === 'revised' || p.status === 'verified').length;
+    const docHow = `You wrote ${s.writerParas} of ${s.paraCount} paragraphs without assistance and made ${reqs.length} request${reqs.length === 1 ? '' : 's'} (${byLabel || 'none yet'}). A second thought reshaped ${reshaped} of them${withdrawn ? `, and you withdrew ${withdrawn} to do yourself` : ''}. ${insertedN} AI passage${insertedN === 1 ? ' is' : 's are'} in the text; ${engaged} ${engaged === 1 ? 'has' : 'have'} since been revised or verified by you.`;
+    const catPhrase = { evidence:'factual detail', wording:'phrasing', argument:'argument development', ideation:'ideas', structure:'structure' };
+    const aiCats = [...new Set(passArr.map(([, p]) => catPhrase[p.category]))];
+    const docMeant = `About ${s.aiPct}% of the current text originated with the assistant. Your thesis and its framing are yours; the assistant contributed ${aiCats.length ? aiCats.slice(0, -1).join(', ') + (aiCats.length > 1 ? ' and ' : '') + aiCats.slice(-1) : 'nothing that remains in the text'}.` + (passArr.some(([, p]) => p.category === 'argument' && p.status !== 'revised' && p.status !== 'verified') ? ' Where it contributed reasoning, you have mostly kept its wording.' : '');
+
+    const cats = [['ideation','Ideation'], ['structure','Structure'], ['argument','Argument'], ['evidence','Evidence'], ['wording','Wording']];
+    const alloc = cats.map(([k, label]) => {
+      let u = 0; s.log.forEach(l => { if (this.CAT[l.action] !== k || l.how === 'withdrawn') return; const p = l.inserted && s.passages[l.inserted]; u += p ? (p.status === 'revised' || p.status === 'verified' ? 0.5 : 1) : 0.15; });
+      const r = Math.min(0.85, u * 0.3), ai = Math.round(r * 100);
+      return { label, ai, w:100 - ai, tag: r < 0.2 ? 'mostly you' : r < 0.45 ? 'shared' : 'mostly assistant' };
+    });
+
+    const nodeC = { writer:C.writer, ai:C.indigo, source:C.green };
+    const ideaThreads = passArr.map(([id, p]) => ({ para:'¶' + (this.paraOf(id) || '–'), open:() => this.inspect(id), nodes:(p.thread || []).map((n, i) => ({ label:n[1], c:nodeC[n[0]], notFirst:i > 0 })) }));
+
+    const notices = [];
+    const unrev = passArr.find(([, p]) => p.category === 'argument' && ['ai', 'deferred', 'flagged'].includes(p.status));
+    if (unrev) notices.push({ text:`You inserted the ${unrev[1].label.toLowerCase()} in ¶${this.paraOf(unrev[0])} with no changes. Could you explain the reasoning behind it without reopening the conversation?`, hasPassage:true, go:() => this.inspect(unrev[0]) });
+    const drafted = passArr.find(([, p]) => p.label === this.LABEL.draft);
+    if (drafted && early) notices.push({ text:`Part of ¶${this.paraOf(drafted[0])} was generated at the ${ctx.stage.toLowerCase()} stage. Read it aloud: does it sound like your argument, or merely a plausible one?`, hasPassage:true, go:() => this.inspect(drafted[0]) });
+    if (!notices.length && flaggedN) { const f = passArr.find(([, p]) => p.status === 'flagged'); notices.push({ text:`${flaggedN} passage${flaggedN > 1 ? 's contain claims' : ' contains a claim'} you haven’t checked yet.`, hasPassage:true, go:() => this.inspect(f[0]) }); }
+    if (!notices.length) notices.push({ text:'Most of the reasoning here is yours. Notice which requests proved useful. They show when to ask next time.', hasPassage:false, go:() => {} });
+
+    let insp = {};
+    if (s.inspect === '__sel') {
+      insp = { isAi:false, color:C.writer, statusLabel:'Your writing', text:this.trunc(s.inspectText, 320), steps:[{ who:'You', text:'You wrote this passage', t:'today', c:C.writer }],
+        meant:'This reasoning is entirely yours. No assistant involvement.', forText:'The passage reflects your own argument and voice.', forWriter:'Your thinking, start to finish. Scrutiny now would strengthen it without taking it over.', notice:'Nothing to resolve. If you are unsure of it, try “Challenge my argument”: ask for scrutiny rather than a rewrite.' };
+    } else if (s.inspect && s.passages[s.inspect]) {
+      const id = s.inspect, p = s.passages[id], el = this.spanEl(id);
+      const whoL = { writer:'You', ai:'Assistant', system:'Second thought', source:'Source' }, whoC = { writer:C.writer, ai:C.indigo, system:C.grey, source:C.green };
+      const vc = { supports:C.green, partly:C.ochre, contradicts:C.red, unchecked:'#9c9da0' };
+      const notice = p.notice || { flagged:'Before keeping this, could you name where the claim comes from?', ai:'Could you explain the reasoning in this passage without reopening the conversation?', revised:'Was what you changed the wording, or the reasoning?', deferred:'You noticed something here and set it aside. What would it take to resolve it?', verified:'Checked. Does the source support the claim as strongly as the sentence states it?', editing:'Edit freely. Changes are recorded.' }[p.status];
+      const meant = p.meant || ({ revised:'The assistant produced this text; you have since revised it.', verified:'The assistant produced this text; you have checked it against a source.' }[p.status] || `The idea and wording here came from the assistant (${p.label.toLowerCase()}); you have not yet changed it.`);
+      const forText = p.forText || ({ flagged:'A claim here is unchecked. Until it is verified, the paragraph rests on it.', ai:'This passage carries the assistant’s reasoning in its wording. Readers will take it as yours.', revised:'You have reshaped this passage, so it now reads more in your voice.', verified:'The claim is checked against a source, so the passage can carry weight in your argument.', deferred:'This passage is unresolved, so the section around it may still shift.', editing:'You are rewriting this passage now.' }[p.status]);
+      const forWriter = p.forWriter || ({ flagged:'Checking it yourself builds the habit of verifying before you cite.', ai:'Explaining it in your own words would show whether the reasoning is now yours.', revised:'Reworking AI text, rather than accepting it, keeps you in charge of the argument.', verified:'You did the checking, a skill that carries over to every essay.', deferred:'Returning to it later is a deliberate choice. Note what you need before you do.', editing:'Your changes are recorded in the passage history.' }[p.status]);
+      insp = { isAi:true, forText, forWriter, color:statusColor[p.status], statusLabel:statusLabel[p.status], text: el ? el.textContent : '', meant, notice, canVerify:p.status !== 'verified', deferLabel: p.status === 'deferred' ? 'Resume' : 'Leave for later',
+        steps:p.steps.map(x => ({ ...x, who:whoL[x.who], c:whoC[x.who] })), sources:p.sources.map(so => ({ ...so, vc:vc[so.verdict] })), noSources:!p.sources.length,
+        correct:() => this.correct(id), defer:() => this.defer(id), verify:() => this.verify(id), locate:() => this.flash(this.spanEl(id)) };
+    }
+
+    const sideOpen = s.sidebar;
+    return {
+      C, ctxSummary:`${ctx.stage} · ${ctx.context} · ${ctx.purpose}`,
+      openContext:() => this.setState({ tab:'context', sidebar:true }),
+      openReflect:() => this.setState({ tab:'reflect', sidebar:true }),
+      closeReflect:() => this.setState({ tab:'assist' }),
+      closeInspect:() => this.setState({ tab:'assist', inspect:null }),
+      hasDeferred:deferred.length > 0, deferredLabel:`${deferred.length} left for later`, deferred,
+      annotations:s.annotations, annotationsOff:!s.annotations,
+      annOn:() => this.setState({ annotations:true }), annOff:() => this.setState({ annotations:false, spotlight:false, pop:null }),
+      toggleSidebar:() => this.setState(x => ({ sidebar:!x.sidebar })),
+      sidebar:sideOpen, sidebarClosed:!sideOpen, sideW: sideOpen ? '420px' : '52px', tabs,
+      tbBold:this.cmd('bold'), tbItalic:this.cmd('italic'), tbUnderline:this.cmd('underline'),
+      tools:[
+        { label:'Title', title:'Heading 1', run:this.cmd('formatBlock', '<h1>') }, { label:'Section', title:'Heading 2', run:this.cmd('formatBlock', '<h2>') }, { label:'¶', title:'Paragraph', run:this.cmd('formatBlock', '<p>') },
+        { label:'“ ”', title:'Quote', run:this.cmd('formatBlock', '<blockquote>') }, { label:'• List', title:'Bulleted list', run:this.cmd('insertUnorderedList') }, { label:'1. List', title:'Numbered list', run:this.cmd('insertOrderedList') },
+        { label:'Image', title:'Insert image', run:(e) => { e.preventDefault(); this.fileRef.current && this.fileRef.current.click(); } },
+        { label:'Table', title:'Insert table', run:(e) => { e.preventDefault(); this.restoreRange(); document.execCommand('insertHTML', false, '<table><tr><th>Claim</th><th>Evidence</th><th>Source</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table><p><br></p>'); this.styleEditor(); } },
+        { label:'↶', title:'Undo', run:this.cmd('undo') }, { label:'↷', title:'Redo', run:this.cmd('redo') },
+      ],
+      saveNow:this.saveNow, fileRef:this.fileRef, wrapRef:this.wrapRef, pageRef:this.pageRef, margins: s.annotations ? s.margins.map(m => ({ ...m, open:() => this.inspect(m.id) })) : [], onFile:this.onFile, editorRef:this.editorRef, scrollRef:this.scrollRef, threadRef:this.threadRef,
+      hasBubble:!!s.bubble, bubble:s.bubble || {},
+      bubbleAsk:(e) => { e.preventDefault(); this.setState(x => ({ attached:x.selText, tab:'assist', sidebar:true, bubble:null })); },
+      bubbleReflect:(e) => { e.preventDefault(); const r = this.savedRange; const ed = this.editorRef.current; let id = null; if (r) ed.querySelectorAll('[data-ai]').forEach(el => { if (!id && r.intersectsNode(el)) id = el.dataset.ai; }); if (id && s.passages[id]) this.inspect(id); else this.inspect('__sel', s.selText); },
+      hasPop:!!pp, popv, closePop:() => this.setState({ pop:null }),
+      wordsLabel:`${s.words.toLocaleString()} words`, aiShareLabel:`${s.aiPct}% AI-originated`, annotLabel: s.annotations ? 'Annotations visible' : 'Clean view',
+      showVeil:!s.started, notStarted:!s.started, begin:() => this.setState({ started:true, tab:'assist' }),
+      isContext:sideOpen && s.tab === 'context', isAssist:sideOpen && s.tab === 'assist', isReflect:sideOpen && s.tab === 'reflect', isPassage:sideOpen && s.tab === 'passage',
+      dims, audienceText:raw.audienceText, purposeOther:raw.purposeOther, setPurposeOther:(e) => { const v = e.target.value; this.setState(x => ({ ctx:{ ...x.ctx, purposeOther:v } })); }, setAudience:(e) => { const v = e.target.value; this.setState(x => ({ ctx:{ ...x.ctx, audienceText:v } })); }, ctxImplication,
+      assistHeader:`${ctx.stage} · ${ctx.purpose.toLowerCase()} ${ctx.context.toLowerCase()} writing`,
+      hasMode:!!s.mode, modeLabel: s.mode ? (s.mode.type === 'socratic' ? `Socratic · ${s.mode.step + 1}/3` : 'Your objections first') : '', endMode:() => this.setState(x => ({ mode:null, thread:[...x.thread, { id:this.mid(), role:'note', text:'Dialogue ended' }] })),
+      thread, hasPending:!!P, st, thinking:s.thinking,
+      setRestated:(e) => { const v = e.target.value; this.setState(x => ({ pending:{ ...x.pending, restated:v } })); },
+      setGoal:(e) => { const v = e.target.value; this.setState(x => ({ pending:{ ...x.pending, goal:v } })); },
+      setWhy:(e) => { const v = e.target.value; this.setState(x => ({ pending:{ ...x.pending, why:v } })); },
+      confirm:this.confirm, withdraw:this.withdraw, proceed:this.proceed, back:() => this.setState(x => ({ pending:{ ...x.pending, step:1 } })),
+      showActions:!P && !s.mode, actions,
+      hasAttached:!!s.attached, attachedShort:this.trunc(s.attached, 160), detach:() => this.setState({ attached:'' }),
+      canAttachSel:!s.attached && !!s.bubble, attachSel:() => this.setState(x => ({ attached:x.selText })),
+      input:s.input, setInput:(e) => this.setState({ input:e.target.value }),
+      onInputKey:(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.send(); } },
+      sendFree:() => this.send(), inputPlaceholder: s.mode ? 'Answer in your own words…' : 'Ask in your own words, or pick an action…',
+      docHow, docMeant, rows:s.rows.map((r, i) => ({ ...r, go:() => this.flash(this.rowEls[i]) })),
+      legend:[{ label:'you', c:C.writer }, { label:'AI · unreviewed', c:C.indigo }, { label:'AI · revised', c:C.indigoSoft }, { label:'AI · verified', c:C.green }, { label:'AI · needs checking', c:C.ochre }, { label:'AI · later', c:'oklch(0.75 0.09 75)' }],
+      spotTrack: s.spotlight ? C.indigo : '#cfd0d3', spotKnob: s.spotlight ? 15 : 2,
+      toggleSpot:() => this.setState(x => ({ spotlight:!x.spotlight, annotations:true })),
+      alloc, ideaThreads, notices: notices.map(n => ({ ...n, ...this.ptv('text', n.text) })),
+      noteOpen:s.noteOpen, noteDraft:s.noteDraft, notes:s.notes,
+      toggleNote:() => this.setState(x => ({ noteOpen:!x.noteOpen })), setNote:(e) => this.setState({ noteDraft:e.target.value }),
+      saveNote:() => { if (!s.noteDraft.trim()) return; this.setState(x => ({ notes:[...x.notes, { text:x.noteDraft.trim(), t:this.now() }], noteDraft:'', noteOpen:false })); },
+      showSources:false, insp: s.inspect ? { ...insp, ...this.ptv('notice', insp.notice) } : insp,
+    };
+  }
+}
+</script>
+</body>
+</html>
